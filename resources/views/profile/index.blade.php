@@ -71,52 +71,63 @@
 
     <!-- About Me Form -->
     <div class="bg-white rounded-lg shadow-lg p-8">
-        <h3 class="text-xl font-bold mb-6">About Me</h3>
-        <form action="{{ route('profile.update') }}" method="POST" class="space-y-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">About Me</h3>
+        <form action="{{ route('profile.update') }}" method="POST" class="space-y-8">
             @csrf
             @method('PUT')
             
-            <div class="grid grid-cols-2 gap-6">
+            <div class="grid grid-cols-2 gap-8">
                 <!-- Left Column -->
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}" 
-                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nickname</label>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Nickname</label>
                         <input type="text" name="nickname" value="{{ old('nickname', $user->nickname) }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               placeholder="Enter your preferred nickname">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               required>
                     </div>
                 </div>
 
                 <!-- Right Column -->
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Department</label>
                         <input type="text" name="department" value="{{ old('department', $user->department) }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               placeholder="Enter your department">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Position</label>
                         <input type="text" name="position" value="{{ old('position', $user->position) }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               placeholder="Enter your position">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                        <input type="text" value="{{ ucfirst($user->role) }}" class="w-full rounded-lg bg-gray-100" disabled>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Role</label>
+                        <div class="w-full rounded-lg bg-gray-50 p-3 text-gray-600">
+                            {{ ucfirst($user->role) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end mt-6">
-                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300">
+            <div class="flex justify-end mt-8 pt-6 border-t border-gray-200">
+                <button type="submit" 
+                        class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     Save Changes
                 </button>
             </div>

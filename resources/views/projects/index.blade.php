@@ -281,8 +281,57 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.reload();
+                // Close the project details modal first
+                closeProjectDetails();
+                
+                // Create success message element
+                const successMessage = document.createElement('div');
+                successMessage.className = 'mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative';
+                successMessage.setAttribute('role', 'alert');
+                successMessage.innerHTML = `<span class="block sm:inline">${data.message}</span>`;
+                
+                // Insert message at the top of the content area
+                const contentArea = document.querySelector('.p-6.mt-20');
+                contentArea.insertBefore(successMessage, contentArea.firstChild);
+                
+                // Remove message and reload after 2 seconds
+                setTimeout(() => {
+                    successMessage.remove();
+                    window.location.reload();
+                }, 2000);
+            } else {
+                // Create error message element
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+                errorMessage.setAttribute('role', 'alert');
+                errorMessage.innerHTML = `<span class="block sm:inline">${data.error || 'Error marking project as complete'}</span>`;
+                
+                // Insert message at the top of the content area
+                const contentArea = document.querySelector('.p-6.mt-20');
+                contentArea.insertBefore(errorMessage, contentArea.firstChild);
+                
+                // Remove error message after 3 seconds
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 3000);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Create error message element
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+            errorMessage.setAttribute('role', 'alert');
+            errorMessage.innerHTML = '<span class="block sm:inline">Error marking project as complete</span>';
+            
+            // Insert message at the top of the content area
+            const contentArea = document.querySelector('.p-6.mt-20');
+            contentArea.insertBefore(errorMessage, contentArea.firstChild);
+            
+            // Remove error message after 3 seconds
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 3000);
         });
     }
 

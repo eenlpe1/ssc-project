@@ -10,6 +10,7 @@ use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -60,4 +61,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/upload', [TaskController::class, 'uploadFile'])->name('tasks.upload');
     Route::get('/tasks/files/{file}/download', [TaskController::class, 'downloadFile'])->name('tasks.download');
     Route::delete('/tasks/files/{file}', [TaskController::class, 'deleteFile'])->name('tasks.files.delete');
+
+    // Notification Routes
+    Route::middleware('auth')->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
+    });
 });

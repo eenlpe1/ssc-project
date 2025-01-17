@@ -73,44 +73,17 @@
                     <div class="flex items-center space-x-4">
                         <!-- Notification Button -->
                         <div class="relative">
-                            <button id="notificationButton" class="text-gray-800 hover:text-gray-600 focus:outline-none">
+                            <a href="{{ route('notifications.index') }}" class="text-gray-800 hover:text-gray-600 focus:outline-none">
                                 <div class="relative">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                                     </svg>
-                                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                                    <span id="notificationCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
                                 </div>
-                            </button>
-
-                            <!-- Notification Dropdown -->
-                            <div id="notificationMenu" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50">
-                                <div class="px-4 py-2 border-b border-gray-200">
-                                    <h3 class="text-sm font-semibold">Notifications</h3>
-                                </div>
-                                <div class="max-h-64 overflow-y-auto">
-                                    <!-- Sample notifications -->
-                                    <a href="#" class="block px-4 py-3 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0">
-                                                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="ml-3">
-                                                <p class="text-sm text-gray-700">New task assigned to you</p>
-                                                <p class="text-xs text-gray-500">2 minutes ago</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- Add more notification items as needed -->
-                                </div>
-                                <div class="px-4 py-2 border-t border-gray-200">
-                                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View all notifications</a>
-                                </div>
-                            </div>
+                            </a>
                         </div>
 
-                        <!-- Administrator Dropdown (existing code) -->
+                        <!-- Administrator Dropdown -->
                         <div class="relative">
                             <button id="adminDropdown" class="flex items-center space-x-2 focus:outline-none">
                                 <span class="font-semibold">Administrator</span>
@@ -286,31 +259,27 @@
     </div>
 
     <script>
-        // Administrator dropdown functionality
-        const adminDropdown = document.getElementById('adminDropdown');
+        // Admin dropdown functionality
+        const adminButton = document.getElementById('adminDropdown');
         const adminMenu = document.getElementById('adminMenu');
         const adminArrow = document.getElementById('adminArrow');
         
-        function toggleDropdown() {
+        // Toggle admin menu on button click
+        adminButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             adminMenu.classList.toggle('hidden');
             adminArrow.classList.toggle('rotate-180');
-        }
-        
-        // Toggle dropdown on button click
-        adminDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleDropdown();
         });
         
-        // Close dropdown when clicking outside
+        // Close admin menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (!adminDropdown.contains(e.target)) {
+            if (!adminButton.contains(e.target)) {
                 adminMenu.classList.add('hidden');
                 adminArrow.classList.remove('rotate-180');
             }
         });
         
-        // Close dropdown when pressing escape key
+        // Close admin menu when pressing escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 adminMenu.classList.add('hidden');
@@ -318,36 +287,40 @@
             }
         });
 
-        // Notification dropdown functionality
-        const notificationButton = document.getElementById('notificationButton');
-        const notificationMenu = document.getElementById('notificationMenu');
-
-        function toggleNotifications() {
-            notificationMenu.classList.toggle('hidden');
+        // Notification functionality
+        async function updateNotificationCount() {
+            try {
+                const response = await fetch('/notifications/unread-count', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                const notificationCount = document.getElementById('notificationCount');
+                
+                if (data.count > 0) {
+                    notificationCount.textContent = data.count;
+                    notificationCount.classList.remove('hidden');
+                } else {
+                    notificationCount.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching notification count:', error);
+            }
         }
 
-        // Toggle notifications on button click
-        notificationButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleNotifications();
-            // Close admin menu when opening notifications
-            adminMenu.classList.add('hidden');
-            adminArrow.classList.remove('rotate-180');
-        });
+        // Update count on page load
+        updateNotificationCount();
 
-        // Close notification menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!notificationButton.contains(e.target)) {
-                notificationMenu.classList.add('hidden');
-            }
-        });
+        // Check for refresh_notifications flag in session
+        @if(session('refresh_notifications'))
+            // Force an immediate update of notifications
+            updateNotificationCount();
+        @endif
 
-        // Close notification menu when pressing escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                notificationMenu.classList.add('hidden');
-            }
-        });
+        // Poll for new notifications every 30 seconds
+        setInterval(updateNotificationCount, 30000);
     </script>
 </body>
 </html>

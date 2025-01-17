@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TaskFile;
+use App\Notifications\TaskAssigned;
+use App\Notifications\AchievementEarned;
+use App\Notifications\TaskCompleted;
+use App\Notifications\TaskRated;
 
 class TaskController extends Controller
 {
@@ -59,18 +63,40 @@ class TaskController extends Controller
                 'description' => $validated['description'],
                 'project_id' => $validated['project_id'],
                 'assigned_to' => $validated['assigned_to'],
-                'status' => 'todo',
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
+                'status' => 'todo'
+            ]);
+
+            // Send notification to assigned user
+            $assignedUser = User::find($validated['assigned_to']);
+            \Log::info('Sending task notification', [
+                'task_id' => $task->id,
+                'user_id' => $assignedUser->id,
+                'user_name' => $assignedUser->name
+            ]);
+            
+            $assignedUser->notify(new TaskAssigned($task));
+            
+            \Log::info('Task notification sent', [
+                'task_id' => $task->id,
+                'user_id' => $assignedUser->id,
+                'notification_count' => $assignedUser->unreadNotifications()->count()
             ]);
 
             DB::commit();
+            
+            // Return with a flag to refresh notifications
             return redirect()->route('tasks.index')
-                ->with('success', 'Task created successfully.');
+                ->with('success', 'Task created successfully.')
+                ->with('refresh_notifications', true);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error creating task: ' . $e->getMessage())
-                ->withInput();
+            \Log::error('Error creating task: ' . $e->getMessage(), [
+                'exception' => $e,
+                'validated_data' => $validated ?? null
+            ]);
+            return back()->with('error', 'Error creating task: ' . $e->getMessage());
         }
     }
 
@@ -294,32 +320,48 @@ class TaskController extends Controller
     public function markAsComplete(Task $task)
     {
         try {
-            DB::beginTransaction();
-
-            $task->update([
-                'status' => 'completed'
+            \Log::info('Starting task completion', [
+                'task_id' => $task->id,
+                'current_status' => $task->status,
+                'user_id' => auth()->id()
             ]);
 
+            DB::beginTransaction();
+
+            $task->update(['status' => 'completed']);
+
+            \Log::info('Task status updated', [
+                'task_id' => $task->id,
+                'new_status' => $task->fresh()->status
+            ]);
+
+            // Send notification to assigned user
+            $task->assignedUser->notify(new TaskCompleted($task));
+
             DB::commit();
+            
+            // Flash success message to session
+            session()->flash('success', 'Task marked as complete successfully. Please rate the task to earn stars.');
+
             return response()->json([
                 'success' => true,
-                'message' => 'Task marked as complete successfully'
+                'message' => 'Task marked as complete successfully. Please rate the task to earn stars.'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error completing task: ' . $e->getMessage(), [
                 'task_id' => $task->id,
-                'error' => $e->getMessage()
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
             ]);
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Error marking task as complete: ' . $e->getMessage()
+                'error' => 'Error marking task as complete: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    public function rateTask(Task $task, Request $request)
+    public function rateTask(Request $request, Task $task)
     {
         try {
             DB::beginTransaction();
@@ -328,31 +370,26 @@ class TaskController extends Controller
                 'rating' => 'required|integer|min:1|max:5'
             ]);
 
-            $task->update([
-                'rating' => $validated['rating']
-            ]);
+            $task->update(['rating' => $validated['rating']]);
 
-            // Update user's stars based on completed tasks and ratings
+            // Award stars based on rating
             $user = $task->assignedUser;
-            $totalStars = $user->tasks()
-                ->where('status', 'completed')
-                ->sum('rating');
-            
-            $user->update([
-                'total_stars' => $totalStars
-            ]);
+            $stars = $validated['rating'];
+            $user->increment('total_stars', $stars);
+
+            // Send task rating notification
+            $user->notify(new TaskRated($task, $validated['rating'], $stars));
+
+            // Send achievement notification for high ratings (4 or 5 stars)
+            if ($validated['rating'] >= 4) {
+                $user->notify(new AchievementEarned('High Task Rating', $stars));
+            }
 
             DB::commit();
-            return response()->json([
-                'success' => true,
-                'message' => 'Task rated successfully'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Task rated successfully.']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error rating task: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Error rating task.'], 500);
         }
     }
 } 

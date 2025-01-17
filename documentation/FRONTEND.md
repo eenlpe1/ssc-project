@@ -67,3 +67,26 @@
      - Button: "Save Changes".
    - **Log Out**:
      - Button: "Log Out".
+
+## **Notification System**
+1. **Notification Bell**:
+   - A notification bell icon is displayed in the navigation bar.
+   - Clicking the bell shows a dropdown list of recent notifications.
+   - Notifications are marked as "read" when clicked.
+
+2. **Notification Types**:
+   - **Task Updates**: Notify users when a task is assigned, updated, or completed.
+   - **Project Updates**: Notify users when a project is created or updated.
+   - **Discussion Updates**: Notify users when a new agenda is added or a conversation is started.
+   - **Achievements**: Notify users when they earn stars or badges.
+
+3. **Notification Display**:
+   - Each notification includes:
+     - **Title**: A short description of the notification (e.g., "New Task Assigned").
+     - **Message**: Additional details (e.g., "Task 'Design Homepage' has been assigned to you").
+     - **Timestamp**: When the notification was created.
+     - **Status**: "Unread" or "Read".
+
+4. **Mark as Read**:
+   - Notifications can be marked as "read" individually or all at once.
+   - A "Mark All as Read" button is available in the notification dropdown.

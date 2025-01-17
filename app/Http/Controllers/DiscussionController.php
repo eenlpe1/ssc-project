@@ -6,6 +6,10 @@ use App\Models\Discussion;
 use App\Models\DiscussionMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\DiscussionCreated;
+use App\Notifications\DiscussionMessage as DiscussionMessageNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class DiscussionController extends Controller
 {
@@ -17,29 +21,42 @@ class DiscussionController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'date' => 'required|date',
-            'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Generate a unique conversation ID
-        $validated['conversation_id'] = uniqid('conv_', true);
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'location' => 'required|string|max:255',
+                'date' => 'required|date',
+                'description' => 'required|string',
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
+            ]);
 
-        // Handle image upload if present
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $path = $image->storeAs('discussion-images', $imageName, 'public');
-            $validated['image'] = $path;
+            // Generate a unique conversation ID
+            $validated['conversation_id'] = uniqid('conv_', true);
+
+            // Handle image upload if present
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $path = $image->storeAs('discussion-images', $imageName, 'public');
+                $validated['image'] = $path;
+            }
+
+            $discussion = Discussion::create($validated);
+
+            // Notify all users about the new discussion
+            User::all()->each(function ($user) use ($discussion) {
+                $user->notify(new DiscussionCreated($discussion));
+            });
+
+            DB::commit();
+            return redirect()->route('discussions.index')
+                ->with('success', 'Agenda created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error creating agenda: ' . $e->getMessage());
         }
-
-        Discussion::create($validated);
-
-        return redirect()->route('discussions.index')
-            ->with('success', 'Agenda created successfully.');
     }
 
     public function show(Discussion $discussion)
@@ -54,16 +71,44 @@ class DiscussionController extends Controller
 
     public function storeMessage(Request $request, Discussion $discussion)
     {
-        $validated = $request->validate([
-            'message' => 'required|string'
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $discussion->messages()->create([
-            'user_id' => Auth::id(),
-            'message' => $validated['message']
-        ]);
+            $validated = $request->validate([
+                'message' => 'required|string'
+            ]);
 
-        return back()->with('success', 'Message sent successfully.');
+            $message = $discussion->messages()->create([
+                'user_id' => Auth::id(),
+                'message' => $validated['message']
+            ]);
+
+            // Notify all users who have participated in this discussion
+            $participantIds = $discussion->messages()
+                ->select('user_id')
+                ->distinct()
+                ->pluck('user_id')
+                ->toArray();
+
+            // Add the discussion creator to the notification list if not already included
+            if (!in_array($discussion->user_id, $participantIds)) {
+                $participantIds[] = $discussion->user_id;
+            }
+
+            // Remove the current user from the notification list
+            $participantIds = array_diff($participantIds, [Auth::id()]);
+
+            // Send notifications
+            User::whereIn('id', $participantIds)->get()->each(function ($user) use ($discussion, $message) {
+                $user->notify(new DiscussionMessageNotification($discussion, $message));
+            });
+
+            DB::commit();
+            return back()->with('success', 'Message sent successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error sending message: ' . $e->getMessage());
+        }
     }
 
     public function endDiscussion(Discussion $discussion)

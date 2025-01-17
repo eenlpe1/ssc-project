@@ -505,6 +505,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
         })
@@ -512,7 +513,39 @@
         .then(data => {
             if (data.success) {
                 window.location.reload();
+            } else {
+                // Create error message element
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+                errorMessage.setAttribute('role', 'alert');
+                errorMessage.innerHTML = `<span class="block sm:inline">${data.error || 'Error marking task as complete'}</span>`;
+                
+                // Insert message at the top of the content area
+                const contentArea = document.querySelector('.p-6.mt-20');
+                contentArea.insertBefore(errorMessage, contentArea.firstChild);
+                
+                // Remove error message after 3 seconds
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 3000);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Create error message element
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+            errorMessage.setAttribute('role', 'alert');
+            errorMessage.innerHTML = '<span class="block sm:inline">Error marking task as complete</span>';
+            
+            // Insert message at the top of the content area
+            const contentArea = document.querySelector('.p-6.mt-20');
+            contentArea.insertBefore(errorMessage, contentArea.firstChild);
+            
+            // Remove error message after 9 seconds
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 9000);
         });
     }
 

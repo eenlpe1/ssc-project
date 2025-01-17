@@ -80,3 +80,27 @@ To support the image upload functionality, the backend will need the following u
 3. **File Storage**:
    - Use Laravel’s built-in file storage system to store uploaded images.
    - Configure the storage path (e.g., `storage/app/discussion_images`).
+
+# **Backend Documentation**
+
+## **Notification System**
+1. **Database**:
+   - Add a `notifications` table (already provided by Laravel).
+   - Columns: `id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`.
+
+2. **Notification Class**:
+   - Create a custom notification class for each type of notification (e.g., `TaskAssigned`, `ProjectUpdated`).
+   - Example: `php artisan make:notification TaskAssigned`.
+
+3. **Sending Notifications**:
+   - Use Laravel’s `Notification` facade to send notifications.
+   - Example:
+     ```php
+     use App\Notifications\TaskAssigned;
+     $user->notify(new TaskAssigned($task));
+     ```
+
+4. **API Endpoints**:
+   - `GET /notifications`: Fetch all notifications for the authenticated user.
+   - `POST /notifications/{id}/mark-as-read`: Mark a specific notification as read.
+   - `POST /notifications/mark-all-as-read`: Mark all notifications as read.

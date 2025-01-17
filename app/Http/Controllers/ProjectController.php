@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\ProjectUpdated;
+use App\Models\User;
 
 class ProjectController extends Controller
 {
@@ -43,15 +45,25 @@ class ProjectController extends Controller
                 'end_date' => 'required|date|after_or_equal:start_date',
             ]);
 
-            Project::create($validated);
+            $project = Project::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'status' => 'todo'
+            ]);
+
+            // Notify all users about the new project
+            User::all()->each(function ($user) use ($project) {
+                $user->notify(new ProjectUpdated($project, 'created'));
+            });
 
             DB::commit();
             return redirect()->route('projects.index')
                 ->with('success', 'Project created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error creating project: ' . $e->getMessage())
-                ->withInput();
+            return back()->with('error', 'Error creating project: ' . $e->getMessage());
         }
     }
 
@@ -65,18 +77,25 @@ class ProjectController extends Controller
                 'description' => 'nullable|string',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after_or_equal:start_date',
-                'status' => 'required|in:todo,in_progress,completed,overdue',
             ]);
 
             $project->update($validated);
+
+            // Notify users assigned to this project's tasks
+            $users = $project->tasks()->with('assignedUser')->get()
+                ->pluck('assignedUser')
+                ->unique('id');
+
+            foreach ($users as $user) {
+                $user->notify(new ProjectUpdated($project, 'updated'));
+            }
 
             DB::commit();
             return redirect()->route('projects.index')
                 ->with('success', 'Project updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error updating project: ' . $e->getMessage())
-                ->withInput();
+            return back()->with('error', 'Error updating project: ' . $e->getMessage());
         }
     }
 
@@ -111,18 +130,38 @@ class ProjectController extends Controller
     public function markAsComplete(Project $project)
     {
         try {
-            $project->update([
-                'status' => 'completed'
-            ]);
-
+            DB::beginTransaction();
+            
+            \Log::info('Attempting to mark project as complete', ['project_id' => $project->id]);
+            
+            $project->update(['status' => 'completed']);
+            
+            // Notify users assigned to project tasks
+            $users = $project->tasks->pluck('assigned_to')->unique();
+            foreach ($users as $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $user->notify(new ProjectUpdated($project, 'completed'));
+                }
+            }
+            
+            DB::commit();
+            \Log::info('Project marked as complete successfully', ['project_id' => $project->id]);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Project marked as complete successfully'
+                'message' => 'Project marked as complete successfully.'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error completing project: ' . $e->getMessage(), [
+                'project_id' => $project->id,
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error marking project as complete'
+                'error' => 'Error marking project as complete: ' . $e->getMessage()
             ], 500);
         }
     }

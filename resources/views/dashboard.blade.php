@@ -147,29 +147,49 @@
             <div class="p-6 mt-20">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold">HOME</h2>
-                    <p class="text-lg">Welcome Administrator!</p>
+                    <p class="text-lg">Welcome {{ Auth::user()->name }}!</p>
                 </div>
 
                 <!-- Stats Bar -->
                 <div class="bg-[#1e3a8a] text-white rounded-lg p-6 mb-6">
                     <div class="flex justify-between items-center">
-                        <select class="bg-transparent border-none">
-                            <option>Weekly</option>
-                            <option>Monthly</option>
-                            <option>Yearly</option>
+                        <select id="statsPeriod" class="bg-transparent border border-white/30 rounded px-3 py-1 cursor-pointer hover:bg-white/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
                         </select>
                         <div class="flex space-x-16">
                             <div class="text-center">
-                                <div class="text-4xl font-bold">{{ $totalTasks }}</div>
+                                <div id="totalTasks" class="text-4xl font-bold">{{ $totalTasks }}</div>
                                 <div>Total Tasks</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-4xl font-bold">{{ $totalProjects }}</div>
+                                <div id="totalProjects" class="text-4xl font-bold">{{ $totalProjects }}</div>
                                 <div>Total Projects</div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <script>
+                    document.getElementById('statsPeriod').addEventListener('change', function() {
+                        const period = this.value;
+                        // Add visual feedback for the change
+                        this.classList.add('bg-white/10');
+                        setTimeout(() => this.classList.remove('bg-white/10'), 200);
+                        
+                        // Here we would typically make an AJAX call to get updated stats
+                        // For now, we'll just show a loading state
+                        document.getElementById('totalTasks').innerHTML = '<span class="opacity-50 text-2xl">Loading...</span>';
+                        document.getElementById('totalProjects').innerHTML = '<span class="opacity-50 text-2xl">Loading...</span>';
+                        
+                        // Simulate loading new data
+                        setTimeout(() => {
+                            document.getElementById('totalTasks').textContent = '{{ $totalTasks }}';
+                            document.getElementById('totalProjects').textContent = '{{ $totalProjects }}';
+                        }, 500);
+                    });
+                </script>
 
                 <!-- Project Table and Ranking -->
                 <div class="grid grid-cols-12 gap-6">

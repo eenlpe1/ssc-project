@@ -174,7 +174,7 @@
 
 <!-- Task Details Modal -->
 <div id="taskDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" data-task-id="">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Task Details</h3>
             <button onclick="closeTaskDetails()" class="text-gray-600 hover:text-gray-800">
@@ -184,46 +184,46 @@
             </button>
         </div>
         <div class="mt-4">
-            <div class="space-y-4">
+            <div class="space-y-6">
                 <div>
-                    <h4 class="text-lg font-semibold">Task Name</h4>
-                    <p id="taskName" class="text-gray-600"></p>
+                    <h4 class="text-lg font-semibold text-gray-700">Task Name</h4>
+                    <p id="taskName" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Description</h4>
-                    <p id="taskDescription" class="text-gray-600"></p>
+                    <h4 class="text-lg font-semibold text-gray-700">Description</h4>
+                    <p id="taskDescription" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md min-h-[100px] whitespace-pre-wrap"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Project</h4>
-                    <p id="taskProject" class="text-gray-600"></p>
+                    <h4 class="text-lg font-semibold text-gray-700">Project</h4>
+                    <p id="taskProject" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <h4 class="text-lg font-semibold">Assigned To</h4>
-                        <p id="taskAssignedTo" class="text-gray-600"></p>
+                        <h4 class="text-lg font-semibold text-gray-700">Assigned To</h4>
+                        <p id="taskAssignedTo" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                     </div>
                     <div>
-                        <h4 class="text-lg font-semibold">Due Date</h4>
-                        <p id="taskDueDate" class="text-gray-600"></p>
+                        <h4 class="text-lg font-semibold text-gray-700">Due Date</h4>
+                        <p id="taskDueDate" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Status</h4>
-                    <p id="taskStatus" class="text-gray-600"></p>
+                    <h4 class="text-lg font-semibold text-gray-700">Status</h4>
+                    <p id="taskStatus" class="mt-1"></p>
                 </div>
                 <div class="flex justify-end mt-6 space-x-4">
                     <div id="ratingSection" class="hidden">
-                        <div class="star-rating">
-                            <input type="radio" id="star5" name="rating" value="5" />
-                            <label for="star5">★</label>
-                            <input type="radio" id="star4" name="rating" value="4" />
-                            <label for="star4">★</label>
-                            <input type="radio" id="star3" name="rating" value="3" />
-                            <label for="star3">★</label>
-                            <input type="radio" id="star2" name="rating" value="2" />
-                            <label for="star2">★</label>
-                            <input type="radio" id="star1" name="rating" value="1" />
-                            <label for="star1">★</label>
+                        <div class="star-rating flex items-center space-x-1">
+                            <input type="radio" id="star5" name="rating" value="5" class="hidden" />
+                            <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" class="hidden" />
+                            <label for="star4" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" class="hidden" />
+                            <label for="star3" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" class="hidden" />
+                            <label for="star2" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" class="hidden" />
+                            <label for="star1" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
                         </div>
                     </div>
                     <button id="completeTaskBtn" 
@@ -278,11 +278,23 @@
             .then(response => response.json())
             .then(task => {
                 document.getElementById('taskName').textContent = task.name;
-                document.getElementById('taskDescription').textContent = task.description;
+                document.getElementById('taskDescription').textContent = task.description || 'No description provided';
                 document.getElementById('taskProject').textContent = task.project_name;
                 document.getElementById('taskAssignedTo').textContent = task.assigned_to;
                 document.getElementById('taskDueDate').textContent = task.due_date;
-                document.getElementById('taskStatus').textContent = task.status.replace('_', ' ').toUpperCase();
+                
+                // Create status badge
+                const statusBadge = document.createElement('span');
+                statusBadge.className = `inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full 
+                    ${task.status === 'todo' ? 'bg-gray-100 text-gray-800' :
+                    task.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                    task.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'}`;
+                statusBadge.textContent = task.status.replace('_', ' ').toUpperCase();
+                
+                const statusContainer = document.getElementById('taskStatus');
+                statusContainer.innerHTML = '';
+                statusContainer.appendChild(statusBadge);
                 
                 // Store task ID for complete button
                 document.querySelector('#taskDetailsModal').dataset.taskId = task.id;
@@ -299,6 +311,8 @@
                         document.querySelectorAll('.star-rating input').forEach(input => {
                             input.onclick = () => rateTask(task.id, input.value);
                         });
+                    } else {
+                        ratingSection.classList.add('hidden');
                     }
                 } else {
                     completeBtn.classList.remove('hidden');
@@ -349,6 +363,20 @@
             }
         });
     }
+
+    // Close modal when clicking outside
+    document.getElementById('taskDetailsModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('taskDetailsModal')) {
+            closeTaskDetails();
+        }
+    });
+
+    // Close modal when pressing escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeTaskDetails();
+        }
+    });
 </script>
 @endpush
 @endsection 

@@ -56,7 +56,7 @@
 
 ---
 
-### **Backend Updates**
+### **Task File Upload**
 To support the file upload and download functionality, the backend will need the following updates:
 1. **Database**:
    - Add a `files` table to store file details:
@@ -67,3 +67,16 @@ To support the file upload and download functionality, the backend will need the
 3. **File Storage**:
    - Use Laravel’s built-in file storage system to store uploaded files.
    - Configure the storage path (e.g., `storage/app/uploads`).
+
+
+### **Discussion Image Upload**
+To support the image upload functionality, the backend will need the following updates:
+1. **Database**:
+   - Add an `image` column to the `discussions` table:
+     - Column: `image` (stores the file path of the uploaded image).
+2. **API Endpoints**:
+   - `POST /api/discussions`: Create a new agenda with an optional image.
+   - `GET /api/discussions/{id}`: Fetch agenda details, including the image.
+3. **File Storage**:
+   - Use Laravel’s built-in file storage system to store uploaded images.
+   - Configure the storage path (e.g., `storage/app/discussion_images`).

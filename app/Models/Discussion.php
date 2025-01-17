@@ -11,7 +11,8 @@ class Discussion extends Model
         'location',
         'date',
         'description',
-        'conversation_id'
+        'conversation_id',
+        'image'
     ];
 
     protected $casts = [

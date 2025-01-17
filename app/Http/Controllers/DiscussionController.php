@@ -21,11 +21,20 @@ class DiscussionController extends Controller
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'date' => 'required|date',
-            'description' => 'required|string'
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
         ]);
 
         // Generate a unique conversation ID
         $validated['conversation_id'] = uniqid('conv_', true);
+
+        // Handle image upload if present
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $path = $image->storeAs('discussion-images', $imageName, 'public');
+            $validated['image'] = $path;
+        }
 
         Discussion::create($validated);
 

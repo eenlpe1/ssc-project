@@ -45,11 +45,16 @@
 
 5. **Discussion Board**:
    - **Agenda Creation Form**:
-     - Fields: Title, Location, Date, Time, Description.
+     - Fields: Title, Location, Date, Time, Description, Image (optional).
      - Button: "Add Agenda".
-   - **Chat Window**:
-     - Displays messages in real-time (without WebSockets).
-     - Action buttons: Start Conversation, End Conversation.
+   - **Agenda List**:
+     - Displays agenda details (title, location, date, time, description, image).
+     - Action buttons: Edit, Delete, Start Conversation.
+   - **Image Upload**:
+     - Users can upload an image for the agenda.
+     - Image input field: Accepts image files (e.g., `.jpg`, `.png`, `.gif`).
+   - **Image Display**:
+     - Uploaded images are displayed alongside the agenda details.
 
 6. **Notifications**:
    - **Notification Bell**:

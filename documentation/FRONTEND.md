@@ -29,7 +29,14 @@
    - **Task List**:
      - Displays task details (name, description, status, assigned member, dates).
      - Status: Completed, In Progress, Pending.
-     - Action buttons: Edit, Delete, Upload File, Rate Task.
+     - Action buttons: Edit, Delete, Upload File, Mark as Complete.
+   - **File Upload**:
+     - Users can upload files before marking a task as complete.
+     - Button: "Upload File".
+     - File input field: Accepts multiple file types (e.g., `.docx`, `.pdf`, `.zip`).
+   - **File Download**:
+     - Administrators/Advisers can download files uploaded by users.
+     - Button: "Download File" (visible only to Admins/Advisers).
 
 4. **Leaderboard**:
    - **Table**:

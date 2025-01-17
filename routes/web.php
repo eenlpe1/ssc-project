@@ -54,4 +54,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/complete', [TaskController::class, 'markAsComplete'])->name('tasks.complete');
 
     Route::post('/tasks/{task}/rate', [TaskController::class, 'rateTask'])->name('tasks.rate');
+
+    // Task file routes
+    Route::get('/tasks/{task}/files', [TaskController::class, 'getFiles'])->name('tasks.files');
+    Route::post('/tasks/{task}/upload', [TaskController::class, 'uploadFile'])->name('tasks.upload');
+    Route::get('/tasks/files/{file}/download', [TaskController::class, 'downloadFile'])->name('tasks.download');
+    Route::delete('/tasks/files/{file}', [TaskController::class, 'deleteFile'])->name('tasks.files.delete');
 });

@@ -55,3 +55,15 @@
    - `POST /api/notifications`: Create a new notification.
 
 ---
+
+### **Backend Updates**
+To support the file upload and download functionality, the backend will need the following updates:
+1. **Database**:
+   - Add a `files` table to store file details:
+     - Columns: `id`, `task_id`, `file_name`, `file_path`, `uploaded_by`, `created_at`, `updated_at`.
+2. **API Endpoints**:
+   - `POST /api/tasks/{id}/upload`: Upload a file for a specific task.
+   - `GET /api/tasks/{id}/download`: Download a file for a specific task.
+3. **File Storage**:
+   - Use Laravel’s built-in file storage system to store uploaded files.
+   - Configure the storage path (e.g., `storage/app/uploads`).

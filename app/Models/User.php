@@ -55,6 +55,16 @@ class User extends Authenticatable
         'role' => 'user',
     ];
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isAdviser(): bool
+    {
+        return $this->role === 'adviser';
+    }
+
     public function tasks()
     {
         return $this->hasMany(Task::class, 'assigned_to');

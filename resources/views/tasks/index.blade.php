@@ -211,6 +211,40 @@
                     <h4 class="text-lg font-semibold text-gray-700">Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
+
+                <!-- File Upload Section -->
+                <div id="fileUploadSection" class="border-t border-gray-200 pt-6">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Task Files</h4>
+                    
+                    <!-- File Upload Form -->
+                    <form id="fileUploadForm" class="mb-4 hidden">
+                        @csrf
+                        <div class="flex items-center gap-4">
+                            <div class="flex-1">
+                                <input type="file" name="task_file" 
+                                       class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm
+                                              file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
+                                              file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+                                              hover:file:bg-blue-100"
+                                       accept=".pdf,.doc,.docx,.zip,.rar"
+                                       required>
+                            </div>
+                            <button type="submit" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Upload
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Files List -->
+                    <div id="filesList" class="space-y-2">
+                        <!-- Files will be populated here -->
+                    </div>
+                </div>
+
                 <div class="flex justify-end mt-6 space-x-4">
                     <div id="ratingSection" class="hidden">
                         <div class="star-rating flex items-center space-x-1">
@@ -297,14 +331,17 @@
                 statusContainer.appendChild(statusBadge);
                 
                 // Store task ID for complete button
-                document.querySelector('#taskDetailsModal').dataset.taskId = task.id;
+                const modal = document.querySelector('#taskDetailsModal');
+                modal.dataset.taskId = task.id;
                 
                 // Show/hide complete button and rating section based on status
                 const completeBtn = document.getElementById('completeTaskBtn');
                 const ratingSection = document.getElementById('ratingSection');
+                const fileUploadForm = document.getElementById('fileUploadForm');
                 
                 if (task.status === 'completed') {
                     completeBtn.classList.add('hidden');
+                    fileUploadForm.classList.add('hidden');
                     if (!task.rating) {
                         ratingSection.classList.remove('hidden');
                         // Set up rating handlers
@@ -316,12 +353,144 @@
                     }
                 } else {
                     completeBtn.classList.remove('hidden');
+                    fileUploadForm.classList.remove('hidden');
                     ratingSection.classList.add('hidden');
                 }
+
+                // Load task files
+                loadTaskFiles(task.id);
                 
-                document.getElementById('taskDetailsModal').classList.remove('hidden');
+                modal.classList.remove('hidden');
             });
     }
+
+    function loadTaskFiles(taskId) {
+        fetch(`/tasks/${taskId}/files`)
+            .then(response => response.json())
+            .then(files => {
+                const filesList = document.getElementById('filesList');
+                filesList.innerHTML = '';
+
+                if (files.length === 0) {
+                    const taskStatus = document.querySelector('#taskStatus span').textContent;
+                    const message = taskStatus === 'COMPLETED' ? 'No files uploaded.' : 'No files uploaded yet.';
+                    filesList.innerHTML = `<p class="text-gray-500 text-sm">${message}</p>`;
+                    return;
+                }
+
+                files.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
+                    fileItem.innerHTML = `
+                        <span class="text-sm text-gray-600">${file.file_name}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="downloadFile(${file.id})" 
+                                    class="text-blue-600 hover:text-blue-700 transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                            </button>
+                            ${isAdmin() ? `
+                                <button onclick="deleteFile(${file.id})" 
+                                        class="text-red-600 hover:text-red-700 transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    filesList.appendChild(fileItem);
+                });
+            });
+    }
+
+    function isAdmin() {
+        return document.body.dataset.userRole === 'admin';
+    }
+
+    // Set up file upload form handler
+    document.getElementById('fileUploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+        const formData = new FormData(this);
+
+        fetch(`/tasks/${taskId}/upload`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadTaskFiles(taskId);
+                this.reset();
+            } else {
+                alert('Error uploading file: ' + data.message);
+            }
+        });
+    });
+
+    function downloadFile(fileId) {
+        fetch(`/tasks/files/${fileId}/download`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json().then(data => {
+                    alert(data.message);
+                });
+            } else {
+                return response.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('content-disposition')?.split('filename=')[1] || 'download';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error downloading file. Please try again.');
+        });
+    }
+
+    function deleteFile(fileId) {
+        if (!confirm('Are you sure you want to delete this file?')) {
+            return;
+        }
+
+        fetch(`/tasks/files/${fileId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+                loadTaskFiles(taskId);
+            } else {
+                alert('Error deleting file: ' + data.message);
+            }
+        });
+    }
+
+    // Add user role to body for admin check
+    document.body.dataset.userRole = '{{ Auth::user()->role }}';
 
     function closeTaskDetails() {
         document.getElementById('taskDetailsModal').classList.add('hidden');

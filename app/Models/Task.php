@@ -39,6 +39,11 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function files()
+    {
+        return $this->hasMany(TaskFile::class);
+    }
+
     public function getStatusColorAttribute()
     {
         return match($this->status) {

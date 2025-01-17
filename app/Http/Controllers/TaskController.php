@@ -7,6 +7,8 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Models\TaskFile;
 
 class TaskController extends Controller
 {
@@ -125,24 +127,194 @@ class TaskController extends Controller
             'assigned_to' => $task->assignedUser->name,
             'due_date' => $task->end_date->format('M d, Y'),
             'status' => $task->status,
+            'rating' => $task->rating,
         ]);
+    }
+
+    public function getFiles(Task $task)
+    {
+        $files = $task->files()
+            ->select('id', 'file_name', 'uploaded_by')
+            ->with('uploader:id,name')
+            ->get();
+
+        return response()->json($files);
+    }
+
+    public function uploadFile(Request $request, Task $task)
+    {
+        try {
+            DB::beginTransaction();
+
+            // More detailed validation with increased file size limit
+            $request->validate([
+                'task_file' => [
+                    'required',
+                    'file',
+                    'max:20480', // Increased to 20MB
+                    function ($attribute, $value, $fail) {
+                        if (!$value->isValid()) {
+                            $fail('The file upload failed. Please try again.');
+                        }
+
+                        $mimeType = $value->getMimeType();
+                        $allowedTypes = [
+                            'application/pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            'application/zip',
+                            'application/x-rar-compressed',
+                            'application/x-rar',
+                            'application/octet-stream'
+                        ];
+
+                        if (!in_array($mimeType, $allowedTypes)) {
+                            \Log::error('File upload failed - Invalid mime type: ' . $mimeType);
+                            $fail('The file must be a PDF, DOC, DOCX, ZIP, or RAR file.');
+                        }
+                    }
+                ]
+            ]);
+
+            $file = $request->file('task_file');
+            
+            // Log file information for debugging
+            \Log::info('File upload attempt', [
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize()
+            ]);
+
+            // Handle large files with chunked upload
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->storeAs('task-files', uniqid() . '_' . $fileName, 'public');
+
+            if (!$filePath) {
+                throw new \Exception('Failed to store the file. Please try again.');
+            }
+
+            $task->files()->create([
+                'file_name' => $fileName,
+                'file_path' => $filePath,
+                'uploaded_by' => auth()->id()
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'File uploaded successfully'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            \Log::error('File upload validation error', [
+                'errors' => $e->errors(),
+                'file' => $request->hasFile('task_file') ? [
+                    'name' => $request->file('task_file')->getClientOriginalName(),
+                    'size' => $request->file('task_file')->getSize()
+                ] : 'No file'
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error: ' . collect($e->errors())->first()[0]
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('File upload error: ' . $e->getMessage(), [
+                'file' => $request->hasFile('task_file') ? [
+                    'name' => $request->file('task_file')->getClientOriginalName(),
+                    'size' => $request->file('task_file')->getSize()
+                ] : 'No file',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function downloadFile($fileId)
+    {
+        try {
+            $file = TaskFile::findOrFail($fileId);
+            
+            // Check if user has permission to download
+            if (!auth()->user()->isAdmin() && !auth()->user()->isAdviser() && 
+                $file->task->assigned_to !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to download this file. Only administrators, advisers, and the assigned user can download task files.'
+                ], 403);
+            }
+
+            return Storage::disk('public')->download($file->file_path, $file->file_name);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error downloading file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteFile($fileId)
+    {
+        try {
+            DB::beginTransaction();
+
+            $file = TaskFile::findOrFail($fileId);
+
+            // Only admin can delete files
+            if (!auth()->user()->isAdmin()) {
+                throw new \Exception('Only administrators can delete files.');
+            }
+
+            // Delete the physical file
+            Storage::disk('public')->delete($file->file_path);
+
+            // Delete the database record
+            $file->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'File deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting file: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function markAsComplete(Task $task)
     {
         try {
+            DB::beginTransaction();
+
             $task->update([
                 'status' => 'completed'
             ]);
 
+            DB::commit();
             return response()->json([
                 'success' => true,
                 'message' => 'Task marked as complete successfully'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error completing task: ' . $e->getMessage(), [
+                'task_id' => $task->id,
+                'error' => $e->getMessage()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error marking task as complete'
+                'message' => 'Error marking task as complete: ' . $e->getMessage()
             ], 500);
         }
     }

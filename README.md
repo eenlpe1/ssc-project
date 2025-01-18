@@ -7,6 +7,43 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Setup Instructions
+
+To run this application, follow these steps:
+
+1. Clone the repository
+2. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
+3. Install JavaScript dependencies:
+   ```bash
+   npm install
+   ```
+4. Create and configure your `.env` file:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+5. Set up the database:
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
+6. Start the development server:
+   ```bash
+   php artisan serve
+   ```
+7. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+8. Start the queue worker for notifications:
+   ```bash
+   php artisan queue:work
+   ```
+
+**Note**: The queue worker (`php artisan queue:work`) must be running for the notification system to function properly. This processes background jobs like sending notifications to users.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

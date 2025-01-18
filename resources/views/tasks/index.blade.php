@@ -512,7 +512,23 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Close the task details modal first
+                closeTaskDetails();
+                
+                // Create success message element
+                const successMessage = document.createElement('div');
+                successMessage.className = 'mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative';
+                successMessage.setAttribute('role', 'alert');
+                successMessage.innerHTML = `<span class="block sm:inline">${data.message}</span>`;
+                
+                // Insert message at the top of the content area
+                const contentArea = document.querySelector('.p-6.mt-20');
+                contentArea.insertBefore(successMessage, contentArea.firstChild);
+                
+                // Add a delay before reloading to ensure notification is processed
+                setTimeout(() => {
                 window.location.reload();
+                }, 1000);
             } else {
                 // Create error message element
                 const errorMessage = document.createElement('div');
@@ -542,10 +558,10 @@
             const contentArea = document.querySelector('.p-6.mt-20');
             contentArea.insertBefore(errorMessage, contentArea.firstChild);
             
-            // Remove error message after 9 seconds
+            // Remove error message after 3 seconds
             setTimeout(() => {
                 errorMessage.remove();
-            }, 9000);
+            }, 3000);
         });
     }
 

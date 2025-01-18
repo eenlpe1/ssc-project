@@ -14,8 +14,8 @@
             <!-- Yellow Header -->
             <div class="bg-yellow-300 h-16 p-4">
                 <div class="flex items-center gap-2">
-                    <img src="{{ asset('images/mama-merry.png') }}" alt="Mama Mary" class="h-12">
-                    <img src="{{ asset('images/ssc-logo.png') }}" alt="SSC Logo" class="h-8">
+                    <img src="{{ asset('images/phcp-logo.png') }}" alt="Mama Mary" class="h-10">
+                    <img src="{{ asset('images/ssc-logo.png') }}" alt="SSC Logo" class="h-10">
                 </div>
             </div>
             <nav class="mt-8">

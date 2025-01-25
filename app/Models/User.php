@@ -65,6 +65,26 @@ class User extends Authenticatable
         return $this->role === 'adviser';
     }
 
+    public function canCreateProjects(): bool
+    {
+        return in_array($this->role, ['admin', 'adviser']);
+    }
+
+    public function canCreateTasks(): bool
+    {
+        return in_array($this->role, ['admin', 'adviser']);
+    }
+
+    public function canRateTasks(): bool
+    {
+        return in_array($this->role, ['admin', 'adviser']);
+    }
+
+    public function canCreateUsers(): bool
+    {
+        return in_array($this->role, ['admin', 'adviser']);
+    }
+
     public function tasks()
     {
         return $this->hasMany(Task::class, 'assigned_to');

@@ -85,10 +85,10 @@
                             </a>
                         </div>
 
-                        <!-- Admin Menu -->
+                        <!-- User Role Dropdown -->
                         <div class="relative">
-                            <button id="adminButton" class="flex items-center space-x-2 focus:outline-none">
-                                <span class="font-semibold">Administrator</span>
+                            <button id="adminDropdown" class="flex items-center space-x-2 focus:outline-none">
+                                <span class="font-semibold">{{ ucfirst(Auth::user()->role) }}</span>
                                 <svg id="adminArrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
@@ -126,7 +126,7 @@
 
     <script>
         // Admin dropdown functionality
-        const adminButton = document.getElementById('adminButton');
+        const adminButton = document.getElementById('adminDropdown');
         const adminMenu = document.getElementById('adminMenu');
         const adminArrow = document.getElementById('adminArrow');
 

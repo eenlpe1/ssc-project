@@ -10,12 +10,12 @@ class LeaderboardController extends Controller
     public function index()
     {
         // Get top user for the main display
-        $topUser = User::where('role', '!=', 'admin')
+        $topUser = User::where('role', 'user')
             ->orderByDesc('total_stars')
             ->first();
 
         // Get all users for the ranking table
-        $users = User::where('role', '!=', 'admin')
+        $users = User::where('role', 'user')
             ->orderByDesc('total_stars')
             ->get()
             ->map(function ($user, $index) {

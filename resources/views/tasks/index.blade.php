@@ -28,12 +28,14 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">TASK</h2>
-        <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Add Task
-        </button>
+        @if(Auth::user()->canCreateTasks())
+            <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Task
+            </button>
+        @endif
     </div>
 
     <!-- Task Filters -->
@@ -232,7 +234,7 @@
                             <button type="submit" 
                                     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
                                 Upload
                             </button>
@@ -342,7 +344,7 @@
                 if (task.status === 'completed') {
                     completeBtn.classList.add('hidden');
                     fileUploadForm.classList.add('hidden');
-                    if (!task.rating) {
+                    if (!task.rating && canRateTasks()) {
                         ratingSection.classList.remove('hidden');
                         // Set up rating handlers
                         document.querySelectorAll('.star-rating input').forEach(input => {
@@ -409,6 +411,11 @@
 
     function isAdmin() {
         return document.body.dataset.userRole === 'admin';
+    }
+
+    function canRateTasks() {
+        const userRole = document.body.dataset.userRole;
+        return userRole === 'admin' || userRole === 'adviser';
     }
 
     // Set up file upload form handler

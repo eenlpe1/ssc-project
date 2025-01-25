@@ -12,7 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         // Get all users with their task and project counts
-        $users = User::all()
+        $users = User::where('role', 'user')
+            ->get()
             ->map(function ($user) {
                 return [
                     'id' => $user->id,

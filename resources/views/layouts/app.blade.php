@@ -88,8 +88,11 @@
                         <!-- User Role Dropdown -->
                         <div class="relative">
                             <button id="adminDropdown" class="flex items-center space-x-2 focus:outline-none">
-                                <span class="font-semibold">{{ ucfirst(Auth::user()->role) }}</span>
-                                <svg id="adminArrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="flex flex-col items-end mr-1">
+                                    <span class="font-semibold text-base leading-tight">{{ Auth::user()->name }}</span>
+                                    <span class="text-[11px] leading-tight text-gray-700">{{ ucfirst(Auth::user()->role) }}</span>
+                                </div>
+                                <svg id="adminArrow" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>

@@ -11,6 +11,11 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        // Check if user has access
+        if (auth()->user()->role === 'user') {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
+        }
+
         try {
             $query = User::query();
 
@@ -32,6 +37,11 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // Check if user has access
+        if (auth()->user()->role === 'user') {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to perform this action.');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -58,6 +68,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // Check if user has access
+        if (auth()->user()->role === 'user') {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to perform this action.');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -88,6 +103,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        // Check if user has access
+        if (auth()->user()->role === 'user') {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to perform this action.');
+        }
+
         try {
             DB::beginTransaction();
             
@@ -108,6 +128,11 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        // Check if user has access
+        if (auth()->user()->role === 'user') {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to access this information.');
+        }
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,

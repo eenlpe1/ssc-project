@@ -69,6 +69,11 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
+        // Check if user has access
+        if (!auth()->user()->canCreateProjects()) {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to edit projects.');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -87,7 +92,9 @@ class ProjectController extends Controller
                 ->unique('id');
 
             foreach ($users as $user) {
-                $user->notify(new ProjectUpdated($project, 'updated'));
+                if ($user) {
+                    $user->notify(new ProjectUpdated($project, 'updated'));
+                }
             }
 
             DB::commit();
@@ -95,7 +102,8 @@ class ProjectController extends Controller
                 ->with('success', 'Project updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error updating project: ' . $e->getMessage());
+            return back()->with('error', 'Error updating project: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -121,8 +129,8 @@ class ProjectController extends Controller
             'id' => $project->id,
             'name' => $project->name,
             'description' => $project->description,
-            'start_date' => $project->start_date->format('M d, Y'),
-            'end_date' => $project->end_date->format('M d, Y'),
+            'start_date' => $project->start_date->format('Y-m-d'),
+            'end_date' => $project->end_date->format('Y-m-d'),
             'status' => $project->status,
         ]);
     }

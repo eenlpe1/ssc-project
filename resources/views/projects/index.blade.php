@@ -180,6 +180,13 @@
                     <p id="projectStatus" class="mt-1"></p>
                 </div>
                 <div class="flex justify-end mt-6 space-x-4">
+                    @if(Auth::user()->canCreateProjects())
+                    <button id="editProjectBtn" 
+                            onclick="openEditProjectModal()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        Edit Project
+                    </button>
+                    @endif
                     <button id="completeProjectBtn" 
                             onclick="completeProject(document.querySelector('#projectDetailsModal').dataset.projectId)"
                             class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
@@ -188,6 +195,48 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div id="editProjectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Project</h3>
+            <button class="text-gray-500 hover:text-gray-700" onclick="closeEditModal()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <form id="editProjectForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Project Name</label>
+                    <input type="text" name="name" id="editProjectName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" id="editProjectDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" name="start_date" id="editProjectStartDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" name="end_date" id="editProjectEndDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Update Project</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -348,6 +397,40 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeProjectDetails();
+        }
+    });
+
+    function openEditProjectModal() {
+        const projectId = document.querySelector('#projectDetailsModal').dataset.projectId;
+        
+        // Fetch full project details for editing
+        fetch(`/projects/${projectId}`)
+            .then(response => response.json())
+            .then(project => {
+                // Set form action
+                document.getElementById('editProjectForm').action = `/projects/${projectId}`;
+                
+                // Populate form fields
+                document.getElementById('editProjectName').value = project.name;
+                document.getElementById('editProjectDescription').value = project.description || '';
+                document.getElementById('editProjectStartDate').value = project.start_date;
+                document.getElementById('editProjectEndDate').value = project.end_date;
+                
+                // Show edit modal
+                document.getElementById('editProjectModal').classList.remove('hidden');
+                document.getElementById('editProjectModal').classList.add('flex');
+            });
+    }
+
+    function closeEditModal() {
+        document.getElementById('editProjectModal').classList.add('hidden');
+        document.getElementById('editProjectModal').classList.remove('flex');
+    }
+
+    // Close edit modal when clicking outside
+    document.getElementById('editProjectModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editProjectModal')) {
+            closeEditModal();
         }
     });
 </script>

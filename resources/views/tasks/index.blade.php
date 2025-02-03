@@ -213,6 +213,34 @@
                     <h4 class="text-lg font-semibold text-gray-700">Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
+                <div class="flex justify-end mt-6 space-x-4">
+                    @if(Auth::user()->canCreateTasks())
+                    <button id="editTaskBtn" 
+                            onclick="openEditTaskModal()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        Edit Task
+                    </button>
+                    @endif
+                    <div id="ratingSection" class="hidden">
+                        <div class="star-rating flex items-center space-x-1">
+                            <input type="radio" id="star5" name="rating" value="5" class="hidden" />
+                            <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" class="hidden" />
+                            <label for="star4" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" class="hidden" />
+                            <label for="star3" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" class="hidden" />
+                            <label for="star2" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" class="hidden" />
+                            <label for="star1" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                        </div>
+                    </div>
+                    <button id="completeTaskBtn" 
+                            onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        Mark as Complete
+                    </button>
+                </div>
 
                 <!-- File Upload Section -->
                 <div id="fileUploadSection" class="border-t border-gray-200 pt-6">
@@ -246,30 +274,77 @@
                         <!-- Files will be populated here -->
                     </div>
                 </div>
-
-                <div class="flex justify-end mt-6 space-x-4">
-                    <div id="ratingSection" class="hidden">
-                        <div class="star-rating flex items-center space-x-1">
-                            <input type="radio" id="star5" name="rating" value="5" class="hidden" />
-                            <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star4" name="rating" value="4" class="hidden" />
-                            <label for="star4" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star3" name="rating" value="3" class="hidden" />
-                            <label for="star3" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star2" name="rating" value="2" class="hidden" />
-                            <label for="star2" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star1" name="rating" value="1" class="hidden" />
-                            <label for="star1" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                        </div>
-                    </div>
-                    <button id="completeTaskBtn" 
-                            onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
-                        Mark as Complete
-                    </button>
-                </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Edit Task</h3>
+            <button class="text-gray-500 hover:text-gray-700" onclick="closeEditModal()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <form id="editTaskForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Task Name</label>
+                    <input type="text" name="name" id="editTaskName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" id="editTaskDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Project</label>
+                    <select name="project_id" id="editTaskProject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <option value="">Select Project</option>
+                        @foreach($projects as $project)
+                            <option value="{{ $project->id }}">{{ $project->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Assigned To</label>
+                    <select name="assigned_to" id="editTaskAssignedTo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <option value="">Select User</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" name="start_date" id="editTaskStartDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" name="end_date" id="editTaskEndDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <select name="status" id="editTaskStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Update Task</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -600,6 +675,43 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeTaskDetails();
+        }
+    });
+
+    function openEditTaskModal() {
+        const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+        
+        // Fetch full task details for editing
+        fetch(`/tasks/${taskId}`)
+            .then(response => response.json())
+            .then(task => {
+                // Set form action
+                document.getElementById('editTaskForm').action = `/tasks/${taskId}`;
+                
+                // Populate form fields
+                document.getElementById('editTaskName').value = task.name;
+                document.getElementById('editTaskDescription').value = task.description || '';
+                document.getElementById('editTaskProject').value = task.project_id;
+                document.getElementById('editTaskAssignedTo').value = task.assigned_to_id;
+                document.getElementById('editTaskStartDate').value = task.start_date;
+                document.getElementById('editTaskEndDate').value = task.end_date;
+                document.getElementById('editTaskStatus').value = task.status;
+                
+                // Show edit modal
+                document.getElementById('editTaskModal').classList.remove('hidden');
+                document.getElementById('editTaskModal').classList.add('flex');
+            });
+    }
+
+    function closeEditModal() {
+        document.getElementById('editTaskModal').classList.add('hidden');
+        document.getElementById('editTaskModal').classList.remove('flex');
+    }
+
+    // Close edit modal when clicking outside
+    document.getElementById('editTaskModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editTaskModal')) {
+            closeEditModal();
         }
     });
 </script>

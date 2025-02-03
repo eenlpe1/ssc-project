@@ -102,6 +102,11 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
+        // Check if user has access
+        if (!auth()->user()->canCreateTasks()) {
+            return redirect()->route('dashboard')->with('error', 'You do not have permission to edit tasks.');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -116,6 +121,12 @@ class TaskController extends Controller
             ]);
 
             $task->update($validated);
+
+            // If the task is marked as completed through the edit form
+            if ($validated['status'] === 'completed' && $task->wasChanged('status')) {
+                // Notify the assigned user
+                $task->assignedUser->notify(new TaskCompleted($task));
+            }
 
             DB::commit();
             return redirect()->route('tasks.index')
@@ -149,8 +160,12 @@ class TaskController extends Controller
             'id' => $task->id,
             'name' => $task->name,
             'description' => $task->description,
+            'project_id' => $task->project_id,
             'project_name' => $task->project->name,
+            'assigned_to_id' => $task->assigned_to,
             'assigned_to' => $task->assignedUser->name,
+            'start_date' => $task->start_date->format('Y-m-d'),
+            'end_date' => $task->end_date->format('Y-m-d'),
             'due_date' => $task->end_date->format('M d, Y'),
             'status' => $task->status,
             'rating' => $task->rating,

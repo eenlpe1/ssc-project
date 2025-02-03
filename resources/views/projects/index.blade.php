@@ -47,7 +47,7 @@
             </a>
             <a href="{{ route('projects.index', ['status' => 'todo']) }}" 
                class="px-6 py-3 {{ $currentStatus === 'todo' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
-                To Do
+                To do
             </a>
             <a href="{{ route('projects.index', ['status' => 'overdue']) }}" 
                class="px-6 py-3 {{ $currentStatus === 'overdue' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
@@ -88,7 +88,7 @@
                                 @elseif($project->status === 'completed') bg-green-100 text-green-800
                                 @else bg-red-100 text-red-800
                                 @endif">
-                                {{ ucfirst(str_replace('_', ' ', $project->status)) }}
+                                {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project->status))) }}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-center text-blue-600 font-medium">{{ $project->task_count }}</td>

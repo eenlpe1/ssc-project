@@ -36,7 +36,7 @@
                                         @elseif($project['status'] === 'completed') bg-green-100 text-green-800
                                         @else bg-red-100 text-red-800
                                         @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $project['status'])) }}
+                                        {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project['status']))) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">{{ $project['start_date'] }}</td>

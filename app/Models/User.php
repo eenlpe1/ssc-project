@@ -82,7 +82,12 @@ class User extends Authenticatable
 
     public function canCreateUsers(): bool
     {
-        return in_array($this->role, ['admin', 'adviser']);
+        return $this->role === 'admin';
+    }
+
+    public function canDeleteUsers(): bool
+    {
+        return $this->role === 'admin';
     }
 
     public function tasks()

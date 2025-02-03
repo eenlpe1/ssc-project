@@ -38,8 +38,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // Check if user has access
-        if (auth()->user()->role === 'user') {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to perform this action.');
+        if (!auth()->user()->canCreateUsers()) {
+            return redirect()->route('dashboard')->with('error', 'Only administrators can create new users.');
         }
 
         try {
@@ -104,8 +104,11 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Check if user has access
-        if (auth()->user()->role === 'user') {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to perform this action.');
+        if (!auth()->user()->canDeleteUsers()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Only administrators can delete users.'
+            ], 403);
         }
 
         try {
@@ -118,11 +121,16 @@ class UserController extends Controller
             $user->delete();
             
             DB::commit();
-            return redirect()->route('users.index')
-                ->with('success', 'User deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully.'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error deleting user: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Error deleting user: ' . $e->getMessage()
+            ], 500);
         }
     }
 

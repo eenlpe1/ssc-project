@@ -213,34 +213,6 @@
                     <h4 class="text-lg font-semibold text-gray-700">Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
-                <div class="flex justify-end mt-6 space-x-4">
-                    @if(Auth::user()->canCreateTasks())
-                    <button id="editTaskBtn" 
-                            onclick="openEditTaskModal()"
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
-                        Edit Task
-                    </button>
-                    @endif
-                    <div id="ratingSection" class="hidden">
-                        <div class="star-rating flex items-center space-x-1">
-                            <input type="radio" id="star5" name="rating" value="5" class="hidden" />
-                            <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star4" name="rating" value="4" class="hidden" />
-                            <label for="star4" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star3" name="rating" value="3" class="hidden" />
-                            <label for="star3" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star2" name="rating" value="2" class="hidden" />
-                            <label for="star2" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                            <input type="radio" id="star1" name="rating" value="1" class="hidden" />
-                            <label for="star1" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
-                        </div>
-                    </div>
-                    <button id="completeTaskBtn" 
-                            onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
-                        Mark as Complete
-                    </button>
-                </div>
 
                 <!-- File Upload Section -->
                 <div id="fileUploadSection" class="border-t border-gray-200 pt-6">
@@ -273,6 +245,36 @@
                     <div id="filesList" class="space-y-2">
                         <!-- Files will be populated here -->
                     </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="border-t border-gray-200 pt-6 flex justify-end space-x-4">
+                    <div id="ratingSection" class="hidden">
+                        <div class="star-rating flex items-center space-x-1">
+                            <input type="radio" id="star5" name="rating" value="5" class="hidden" />
+                            <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" class="hidden" />
+                            <label for="star4" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" class="hidden" />
+                            <label for="star3" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" class="hidden" />
+                            <label for="star2" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" class="hidden" />
+                            <label for="star1" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
+                        </div>
+                    </div>
+                    @if(Auth::user()->canCreateTasks())
+                    <button id="editTaskBtn" 
+                            onclick="openEditTaskModal()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        Edit Task
+                    </button>
+                    @endif
+                    <button id="completeTaskBtn" 
+                            onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        Mark as Complete
+                    </button>
                 </div>
             </div>
         </div>

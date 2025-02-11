@@ -149,4 +149,32 @@ class UserController extends Controller
             'created_at' => $user->created_at->format('M d, Y'),
         ]);
     }
+
+    public function resetPassword(Request $request, User $user)
+    {
+        // Check if user has access
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('dashboard')->with('error', 'Only administrators can reset passwords.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $validated = $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+
+            $user->update([
+                'password' => Hash::make($validated['password'])
+            ]);
+
+            DB::commit();
+            return redirect()->route('users.index')
+                ->with('success', 'Password reset successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error resetting password: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
 } 

@@ -11,15 +11,68 @@
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen flex">
-        <!-- Sidebar -->
-        <div class="w-64 bg-[#1e3a8a] text-white fixed h-full">
-            <!-- Yellow Header -->
-            <div class="bg-yellow-300 h-16 p-4">
-                <div class="flex items-center gap-2">
-                    <img src="{{ asset('images/phcp-logo.png') }}" alt="Mama Mary" class="h-10">
-                    <img src="{{ asset('images/ssc-logo.png') }}" alt="SSC Logo" class="h-10">
+        <!-- Fixed Header -->
+        <div class="fixed top-0 left-0 right-0 bg-yellow-300 h-16 z-20">
+            <div class="flex justify-between items-center h-full px-4">
+                <!-- Left side - Logos -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <img src="{{ asset('images/phcp-logo.png') }}" alt="Mama Mary" class="h-10">
+                        <img src="{{ asset('images/ssc-logo.png') }}" alt="SSC Logo" class="h-10">
+                    </div>
+                    <h1 class="text-2xl font-bold">SSC PROJECT MANAGEMENT TOOL</h1>
+                </div>
+                <!-- Right side - Notifications and User -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notification Button -->
+                    <div class="relative">
+                        <a href="{{ route('notifications.index') }}" class="text-gray-800 hover:text-gray-600 focus:outline-none">
+                            <div class="relative">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                </svg>
+                                <span id="notificationCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- User Role Dropdown -->
+                    <div class="relative">
+                        <button id="adminDropdown" class="flex items-center space-x-2 focus:outline-none">
+                            <div class="flex flex-col items-end mr-1">
+                                <span class="font-semibold text-base leading-tight">{{ Auth::user()->name }}</span>
+                                <span class="text-[11px] leading-tight text-gray-700">{{ ucfirst(Auth::user()->role) }}</span>
+                            </div>
+                            <svg id="adminArrow" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Admin Dropdown Menu -->
+                        <div id="adminMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="{{ route('profile.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Profile
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="w-64 bg-[#1e3a8a] text-white fixed h-full mt-16">
             <!-- Profile Picture -->
             <div class="px-6 pt-7 pb-4">
                 <div class="w-20 h-20 mx-auto rounded-full bg-white overflow-hidden flex items-center justify-center border-2 border-yellow-300">
@@ -85,61 +138,9 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 ml-64">
-            <!-- Top Navigation -->
-            <div class="bg-yellow-300 h-16 p-4 fixed w-[calc(100%-16rem)] z-10">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold">SSC PROJECT MANAGEMENT TOOL</h1>
-                    <div class="flex items-center space-x-4">
-                        <!-- Notification Button -->
-                        <div class="relative">
-                            <a href="{{ route('notifications.index') }}" class="text-gray-800 hover:text-gray-600 focus:outline-none">
-                                <div class="relative">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                    </svg>
-                                    <span id="notificationCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- User Role Dropdown -->
-                        <div class="relative">
-                            <button id="adminDropdown" class="flex items-center space-x-2 focus:outline-none">
-                                <div class="flex flex-col items-end mr-1">
-                                    <span class="font-semibold text-base leading-tight">{{ Auth::user()->name }}</span>
-                                    <span class="text-[11px] leading-tight text-gray-700">{{ ucfirst(Auth::user()->role) }}</span>
-                                </div>
-                                <svg id="adminArrow" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-
-                            <!-- Admin Dropdown Menu -->
-                            <div id="adminMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="{{ route('profile.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                    Profile
-                                </a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                        </svg>
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="flex-1 ml-64 mt-16">
             <!-- Main Content Area -->
-            <div class="mt-16">
+            <div>
                 @yield('content')
             </div>
         </div>

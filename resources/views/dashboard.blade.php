@@ -59,14 +59,16 @@
                                                 <td class="px-6 py-4 font-medium">{{ $project->name }}</td>
                                                 <td class="px-6 py-4 text-center">{{ $project->tasks_count }}</td>
                                                 <td class="px-6 py-4">
-                                                    <span class="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full 
-                                                        @if($project->status === 'todo') bg-gray-100 text-gray-800
-                                                        @elseif($project->status === 'in_progress') bg-yellow-100 text-yellow-800
-                                                        @elseif($project->status === 'completed') bg-green-100 text-green-800
-                                                        @else bg-red-100 text-red-800
-                                                        @endif">
-                                                        {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project->status))) }}
-                                                    </span>
+                                                    <div class="flex justify-center">
+                                                        <span class="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full 
+                                                            @if($project->status === 'todo') bg-gray-100 text-gray-800
+                                                            @elseif($project->status === 'in_progress') bg-yellow-100 text-yellow-800
+                                                            @elseif($project->status === 'completed') bg-green-100 text-green-800
+                                                            @else bg-red-100 text-red-800
+                                                            @endif">
+                                                            {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project->status))) }}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">{{ $project->start_date ? $project->start_date->format('M d, Y') : 'N/A' }}</td>
                                                 <td class="px-6 py-4 text-center">{{ $project->end_date ? $project->end_date->format('M d, Y') : 'N/A' }}</td>

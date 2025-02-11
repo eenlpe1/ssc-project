@@ -30,14 +30,16 @@
                                 <td class="px-6 py-4 font-medium">{{ $project['name'] }}</td>
                                 <td class="px-6 py-4 text-center">{{ $project['completed_tasks'] }}</td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium
-                                        @if($project['status'] === 'todo') bg-gray-100 text-gray-800
-                                        @elseif($project['status'] === 'in_progress') bg-yellow-100 text-yellow-800
-                                        @elseif($project['status'] === 'completed') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800
-                                        @endif">
-                                        {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project['status']))) }}
-                                    </span>
+                                    <div class="flex justify-center">
+                                        <span class="px-3 py-1 rounded-full text-sm font-medium
+                                            @if($project['status'] === 'todo') bg-gray-100 text-gray-800
+                                            @elseif($project['status'] === 'in_progress') bg-yellow-100 text-yellow-800
+                                            @elseif($project['status'] === 'completed') bg-green-100 text-green-800
+                                            @else bg-red-100 text-red-800
+                                            @endif">
+                                            {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $project['status']))) }}
+                                        </span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">{{ $project['start_date'] }}</td>
                                 <td class="px-6 py-4 text-center">{{ $project['end_date'] }}</td>

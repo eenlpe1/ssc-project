@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -20,13 +21,24 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
+        // Check if user exists
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'The provided email does not exist.',
+            ])->onlyInput('email');
+        }
+
+        // Attempt to log in
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended('dashboard');
         }
 
+        // If we reach here, the password was incorrect
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'password' => 'Incorrect password.',
         ])->onlyInput('email');
     }
 
@@ -36,5 +48,10 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function showForgotPassword()
+    {
+        return view('auth.forgot-password');
     }
 } 

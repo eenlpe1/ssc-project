@@ -25,7 +25,8 @@ class User extends Authenticatable
         'total_stars',
         'nickname',
         'department',
-        'position'
+        'position',
+        'profile_picture'
     ];
 
     /**

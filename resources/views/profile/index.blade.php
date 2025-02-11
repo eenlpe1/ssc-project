@@ -26,10 +26,16 @@
         <div class="flex items-center gap-8">
             <!-- Profile Section -->
             <div class="flex flex-col items-center">
-                <div class="w-32 h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
+                <div class="w-32 h-32 bg-gray-100 rounded-lg mb-3 overflow-hidden">
+                    @if($user->profile_picture)
+                        <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile Picture" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    @endif
                 </div>
                 <h4 class="font-semibold text-lg mb-2">{{ $user->name }}</h4>
                 <div class="bg-{{ $user->role === 'admin' ? 'red' : ($user->role === 'adviser' ? 'yellow' : 'green') }}-100 rounded-full px-3 py-1">
@@ -72,7 +78,7 @@
     <!-- About Me Form -->
     <div class="bg-white rounded-lg shadow-lg p-8">
         <h3 class="text-xl font-bold text-gray-800 mb-6">About Me</h3>
-        <form action="{{ route('profile.update') }}" method="POST" class="space-y-8">
+        <form action="{{ route('profile.update') }}" method="POST" class="space-y-8" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -80,16 +86,20 @@
                 <!-- Left Column -->
                 <div class="space-y-6">
                     <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Profile Picture</label>
+                        <input type="file" name="profile_picture" accept="image/*"
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-lg file:border-0
+                                      file:text-sm file:font-medium
+                                      file:bg-blue-50 file:text-blue-700
+                                      hover:file:bg-blue-100">
+                    </div>
+                    <div>
                         <label class="block text-lg font-semibold text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}" 
                                class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                                required>
-                    </div>
-                    <div>
-                        <label class="block text-lg font-semibold text-gray-700 mb-2">Nickname</label>
-                        <input type="text" name="nickname" value="{{ old('nickname', $user->nickname) }}"
-                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
-                               placeholder="Enter your preferred nickname">
                     </div>
                     <div>
                         <label class="block text-lg font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
@@ -101,6 +111,12 @@
 
                 <!-- Right Column -->
                 <div class="space-y-6">
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Nickname</label>
+                        <input type="text" name="nickname" value="{{ old('nickname', $user->nickname) }}"
+                               class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                               placeholder="Enter your preferred nickname">
+                    </div>
                     <div>
                         <label class="block text-lg font-semibold text-gray-700 mb-2">Department</label>
                         <input type="text" name="department" value="{{ old('department', $user->department) }}"

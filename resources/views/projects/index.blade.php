@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6 mt-20">
+<div class="p-6">
     <!-- Flash Messages -->
     @if(session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -344,7 +344,7 @@
                 successMessage.innerHTML = `<span class="block sm:inline">${data.message}</span>`;
                 
                 // Insert message at the top of the content area
-                const contentArea = document.querySelector('.p-6.mt-20');
+                const contentArea = document.querySelector('.p-6');
                 contentArea.insertBefore(successMessage, contentArea.firstChild);
                 
                 // Remove message and reload after 2 seconds
@@ -360,7 +360,7 @@
                 errorMessage.innerHTML = `<span class="block sm:inline">${data.error || 'Error marking project as complete'}</span>`;
                 
                 // Insert message at the top of the content area
-                const contentArea = document.querySelector('.p-6.mt-20');
+                const contentArea = document.querySelector('.p-6');
                 contentArea.insertBefore(errorMessage, contentArea.firstChild);
                 
                 // Remove error message after 3 seconds
@@ -378,7 +378,7 @@
             errorMessage.innerHTML = '<span class="block sm:inline">Error marking project as complete</span>';
             
             // Insert message at the top of the content area
-            const contentArea = document.querySelector('.p-6.mt-20');
+            const contentArea = document.querySelector('.p-6');
             contentArea.insertBefore(errorMessage, contentArea.firstChild);
             
             // Remove error message after 3 seconds

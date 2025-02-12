@@ -44,6 +44,23 @@ To run this application, follow these steps:
 
 **Note**: The queue worker (`php artisan queue:work`) must be running for the notification system to function properly. This processes background jobs like sending notifications to users.
 
+## Default Admin Credentials
+
+By default, the system creates an admin user with the following credentials:
+- Name: Administrator
+- Email: admin@admin.com
+- Password: brucegwapo
+
+To customize these default credentials, add the following variables to your `.env` file:
+
+```bash
+ADMIN_NAME="Your Admin Name"
+ADMIN_EMAIL=your_custom_email@example.com
+ADMIN_PASSWORD=your_custom_password
+```
+
+These environment variables will be used during the initial database seeding to create the admin user with your preferred credentials.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
@@ -101,3 +118,4 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+

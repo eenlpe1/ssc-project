@@ -27,7 +27,7 @@
                     <p class="text-gray-300 mb-6">Please contact the administrator for assistance in resetting your password.</p>
                     <div class="bg-white/10 rounded-lg p-4 mb-6">
                         <p class="text-white text-sm">Administrator Contact:</p>
-                        <p class="text-white font-medium">admin@admin.com</p>
+                        <p class="text-white font-medium">{{ env('ADMIN_EMAIL', 'admin@admin.com') }}</p>
                     </div>
                     <a href="{{ route('login') }}" class="inline-block bg-[#60a5fa] text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300">
                         Back to Login

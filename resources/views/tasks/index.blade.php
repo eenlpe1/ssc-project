@@ -365,21 +365,19 @@
         modal.classList.remove('flex');
     }
 
-    addTaskBtn.addEventListener('click', openModal);
+    // Only add event listener if the button exists
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', openModal);
+    }
 
     // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    // Close modal when pressing escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-    });
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
 
     // Show modal if there are validation errors
     @if($errors->any())
@@ -417,6 +415,12 @@
                 const completeBtn = document.getElementById('completeTaskBtn');
                 const ratingSection = document.getElementById('ratingSection');
                 const fileUploadForm = document.getElementById('fileUploadForm');
+                const currentUserId = document.body.dataset.userId;
+                
+                // console.log('Current User ID:', currentUserId, typeof currentUserId);
+                // console.log('Task Assigned To ID:', task.assigned_to_id, typeof task.assigned_to_id);
+                // console.log('Is Admin:', isAdmin());
+                // console.log('Is Adviser:', isAdviser());
                 
                 if (task.status === 'completed') {
                     completeBtn.classList.add('hidden');
@@ -432,7 +436,15 @@
                     }
                 } else {
                     completeBtn.classList.remove('hidden');
-                    fileUploadForm.classList.remove('hidden');
+                    // Show file upload form if user is admin, adviser, or assigned to the task
+                    const canUpload = isAdmin() || isAdviser() || String(currentUserId) === String(task.assigned_to_id);
+                    // console.log('Can Upload:', canUpload);
+                    
+                    if (canUpload) {
+                        fileUploadForm.classList.remove('hidden');
+                    } else {
+                        fileUploadForm.classList.add('hidden');
+                    }
                     ratingSection.classList.add('hidden');
                 }
 
@@ -490,34 +502,45 @@
         return document.body.dataset.userRole === 'admin';
     }
 
+    function isAdviser() {
+        const userRole = document.body.dataset.userRole;
+        return userRole === 'adviser';
+    }
+
     function canRateTasks() {
         const userRole = document.body.dataset.userRole;
         return userRole === 'admin' || userRole === 'adviser';
     }
 
     // Set up file upload form handler
-    document.getElementById('fileUploadForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
-        const formData = new FormData(this);
+    const fileUploadForm = document.getElementById('fileUploadForm');
+    if (fileUploadForm) {
+        fileUploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+            const formData = new FormData();
+            formData.append('task_file', this.querySelector('input[name="task_file"]').files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-        fetch(`/tasks/${taskId}/upload`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadTaskFiles(taskId);
-                this.reset();
-            } else {
-                alert('Error uploading file: ' + data.message);
-            }
+            fetch(`/tasks/${taskId}/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadTaskFiles(taskId);
+                    this.reset();
+                } else {
+                    alert('Error uploading file: ' + (data.message || 'Unknown error occurred'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading file. Please try again.');
+            });
         });
-    });
+    }
 
     function downloadFile(fileId) {
         fetch(`/tasks/files/${fileId}/download`, {
@@ -575,6 +598,7 @@
 
     // Add user role to body for admin check
     document.body.dataset.userRole = '{{ Auth::user()->role }}';
+    document.body.dataset.userId = '{{ Auth::id() }}';
 
     function closeTaskDetails() {
         document.getElementById('taskDetailsModal').classList.add('hidden');

@@ -162,7 +162,7 @@ class TaskController extends Controller
             'description' => $task->description,
             'project_id' => $task->project_id,
             'project_name' => $task->project->name,
-            'assigned_to_id' => $task->assigned_to,
+            'assigned_to_id' => (string)$task->assigned_to,
             'assigned_to' => $task->assignedUser->name,
             'start_date' => $task->start_date->format('Y-m-d'),
             'end_date' => $task->end_date->format('Y-m-d'),
@@ -186,6 +186,12 @@ class TaskController extends Controller
     {
         try {
             DB::beginTransaction();
+
+            // Check if user has permission to upload files
+            if (!auth()->user()->isAdmin() && !auth()->user()->isAdviser() && 
+                $task->assigned_to !== auth()->id()) {
+                throw new \Exception('You do not have permission to upload files to this task. Only administrators, advisers, and the assigned user can upload files.');
+            }
 
             // More detailed validation with increased file size limit
             $request->validate([

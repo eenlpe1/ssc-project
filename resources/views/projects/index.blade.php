@@ -294,7 +294,7 @@
                     project.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                     project.status === 'completed' ? 'bg-green-100 text-green-800' :
                     'bg-red-100 text-red-800'}`;
-                statusBadge.textContent = project.status.replace('_', ' ').toUpperCase();
+                statusBadge.textContent = project.status.replace('todo', 'to do').replace('_', ' ').toUpperCase();
                 
                 const statusContainer = document.getElementById('projectStatus');
                 statusContainer.innerHTML = '';

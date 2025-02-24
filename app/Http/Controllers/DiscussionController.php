@@ -83,23 +83,8 @@ class DiscussionController extends Controller
                 'message' => $validated['message']
             ]);
 
-            // Notify all users who have participated in this discussion
-            $participantIds = $discussion->messages()
-                ->select('user_id')
-                ->distinct()
-                ->pluck('user_id')
-                ->toArray();
-
-            // Add the discussion creator to the notification list if not already included
-            if (!in_array($discussion->user_id, $participantIds)) {
-                $participantIds[] = $discussion->user_id;
-            }
-
-            // Remove the current user from the notification list
-            $participantIds = array_diff($participantIds, [Auth::id()]);
-
-            // Send notifications
-            User::whereIn('id', $participantIds)->get()->each(function ($user) use ($discussion, $message) {
+            // Notify all users except the sender
+            User::where('id', '!=', Auth::id())->get()->each(function ($user) use ($discussion, $message) {
                 $user->notify(new DiscussionMessageNotification($discussion, $message));
             });
 

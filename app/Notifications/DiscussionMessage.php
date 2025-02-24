@@ -29,12 +29,14 @@ class DiscussionMessage extends Notification implements ShouldQueue
 
     public function toArray($notifiable)
     {
+        $senderRole = ucfirst($this->message->user->role);
         return [
-            'title' => 'New Message in Discussion',
-            'message' => "{$this->message->user->name} posted in '{$this->discussion->title}'",
+            'title' => 'New Message in Agenda',
+            'message' => "{$this->message->user->name} ({$senderRole}) sends a message in {$this->discussion->title}",
             'discussion_id' => $this->discussion->id,
             'message_id' => $this->message->id,
             'sender_name' => $this->message->user->name,
+            'sender_role' => $senderRole,
             'discussion_title' => $this->discussion->title
         ];
     }

@@ -31,7 +31,7 @@ class TaskController extends Controller
 
             $tasks = $query->orderBy('created_at', 'desc')->get();
             $projects = Project::orderBy('name')->get();
-            $users = User::orderBy('name')->get();
+            $users = User::where('role', 'user')->orderBy('name')->get();
 
             return view('tasks.index', [
                 'tasks' => $tasks,

@@ -45,10 +45,12 @@
                class="px-6 py-3 {{ $currentRole === 'all' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 All
             </a>
+            @if(Auth::user()->role === 'admin')
             <a href="{{ route('users.index', ['role' => 'admin']) }}" 
                class="px-6 py-3 {{ $currentRole === 'admin' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 Admin
             </a>
+            @endif
             <a href="{{ route('users.index', ['role' => 'adviser']) }}" 
                class="px-6 py-3 {{ $currentRole === 'adviser' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 Adviser

@@ -19,6 +19,11 @@ class UserController extends Controller
         try {
             $query = User::query();
 
+            // If user is adviser, hide admin users
+            if (auth()->user()->role === 'adviser') {
+                $query->where('role', '!=', 'admin');
+            }
+
             // Filter by role if provided
             if ($request->has('role')) {
                 $query->where('role', $request->role);

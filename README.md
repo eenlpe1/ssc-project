@@ -29,15 +29,19 @@ To run this application, follow these steps:
    ```bash
    php artisan migrate:fresh --seed
    ```
-6. Start the development server:
+6. Create storage symlink for file uploads:
+   ```bash
+   php artisan storage:link
+   ```
+7. Start the development server:
    ```bash
    php artisan serve
    ```
-7. Start the Vite development server:
+8. Start the Vite development server:
    ```bash
    npm run dev
    ```
-8. Start the queue worker for notifications:
+9. Start the queue worker for notifications:
    ```bash
    php artisan queue:work
    ```

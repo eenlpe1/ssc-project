@@ -151,6 +151,10 @@ class UserController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
+            'nickname' => $user->nickname,
+            'department' => $user->department,
+            'position' => $user->position,
+            'profile_picture' => $user->profile_picture ? asset('storage/' . $user->profile_picture) : null,
             'created_at' => $user->created_at->format('M d, Y'),
         ]);
     }

@@ -77,7 +77,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @forelse($users as $index => $user)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                    <tr class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer" onclick="showUserDetails({{ $user->id }})">
                         <td class="px-6 py-4 text-center">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-medium">{{ $user->name }}</td>
                         <td class="px-6 py-4">{{ $user->email }}</td>
@@ -92,7 +92,7 @@
                         </td>
                         <td class="px-6 py-4 text-center">{{ $user->created_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center space-x-3">
+                            <div class="flex justify-center space-x-3" onclick="event.stopPropagation()">
                                 <button onclick="showEditUserModal({{ $user->id }})" 
                                         class="text-blue-600 hover:text-blue-800">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,8 +248,8 @@
 
 <!-- User Details Modal -->
 <div id="userDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-    <div class="relative top-20 mx-auto p-5 border w-4/5 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
             <h3 class="text-2xl font-bold">User Details</h3>
             <button onclick="closeUserDetails()" class="text-gray-600 hover:text-gray-800">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,22 +258,36 @@
             </button>
         </div>
         <div class="mt-4">
+            <div class="flex flex-col items-center mb-6">
+                <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 mb-4">
+                    <img id="userProfilePicture" src="" alt="Profile picture" class="w-full h-full object-cover hidden">
+                    <svg id="defaultProfilePicture" class="w-full h-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <h4 id="userName" class="text-xl font-semibold mb-1"></h4>
+                <span id="userRole" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+            </div>
             <div class="space-y-4">
                 <div>
-                    <h4 class="text-lg font-semibold">Name</h4>
-                    <p id="userName" class="text-gray-600"></p>
+                    <h4 class="text-sm font-medium text-gray-500">Email</h4>
+                    <p id="userEmail" class="text-gray-900"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Email</h4>
-                    <p id="userEmail" class="text-gray-600"></p>
+                    <h4 class="text-sm font-medium text-gray-500">Nickname</h4>
+                    <p id="userNickname" class="text-gray-900"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Role</h4>
-                    <p id="userRole" class="text-gray-600"></p>
+                    <h4 class="text-sm font-medium text-gray-500">Department</h4>
+                    <p id="userDepartment" class="text-gray-900"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold">Member Since</h4>
-                    <p id="userCreatedAt" class="text-gray-600"></p>
+                    <h4 class="text-sm font-medium text-gray-500">Position</h4>
+                    <p id="userPosition" class="text-gray-900"></p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500">Member Since</h4>
+                    <p id="userCreatedAt" class="text-gray-900"></p>
                 </div>
             </div>
         </div>
@@ -322,8 +336,30 @@
             .then(user => {
                 document.getElementById('userName').textContent = user.name;
                 document.getElementById('userEmail').textContent = user.email;
-                document.getElementById('userRole').textContent = user.role.toUpperCase();
+                document.getElementById('userNickname').textContent = user.nickname || 'Not set';
+                document.getElementById('userDepartment').textContent = user.department || 'Not set';
+                document.getElementById('userPosition').textContent = user.position || 'Not set';
                 document.getElementById('userCreatedAt').textContent = user.created_at;
+                document.getElementById('userRole').textContent = user.role.toUpperCase();
+                
+                const profilePicture = document.getElementById('userProfilePicture');
+                const defaultProfilePicture = document.getElementById('defaultProfilePicture');
+                
+                if (user.profile_picture) {
+                    profilePicture.src = user.profile_picture;
+                    profilePicture.classList.remove('hidden');
+                    defaultProfilePicture.classList.add('hidden');
+                } else {
+                    profilePicture.classList.add('hidden');
+                    defaultProfilePicture.classList.remove('hidden');
+                }
+                
+                document.getElementById('userRole').className = `px-3 py-1 rounded-full text-sm font-medium ${
+                    user.role === 'admin' ? 'bg-red-100 text-red-800' :
+                    user.role === 'adviser' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                }`;
+                
                 document.getElementById('userDetailsModal').classList.remove('hidden');
             });
     }

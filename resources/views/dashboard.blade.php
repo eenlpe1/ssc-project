@@ -11,9 +11,9 @@
                 <div class="bg-[#1e3a8a] text-white rounded-lg p-6 mb-6">
                     <div class="flex justify-between items-center">
                         <select id="statsPeriod" class="bg-transparent border border-white/30 rounded px-3 py-1 cursor-pointer hover:bg-white/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50">
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
+                            <option value="weekly" class="bg-white text-gray-800">Weekly</option>
+                            <option value="monthly" class="bg-white text-gray-800">Monthly</option>
+                            <option value="yearly" class="bg-white text-gray-800">Yearly</option>
                         </select>
                         <div class="flex space-x-16">
                             <div class="text-center">

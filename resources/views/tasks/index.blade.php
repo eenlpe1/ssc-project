@@ -511,8 +511,22 @@
                 files.forEach(file => {
                     const fileItem = document.createElement('div');
                     fileItem.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
+                    
+                    // Format the date
+                    const uploadDate = new Date(file.created_at);
+                    const formattedDate = uploadDate.toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
                     fileItem.innerHTML = `
-                        <span class="text-sm text-gray-600">${file.file_name}</span>
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-600">${file.file_name}</span>
+                            <span class="text-xs text-gray-500">Uploaded on ${formattedDate}</span>
+                        </div>
                         <div class="flex items-center gap-2">
                             <button onclick="downloadFile(${file.id})" 
                                     class="text-blue-600 hover:text-blue-700 transition-colors duration-200">

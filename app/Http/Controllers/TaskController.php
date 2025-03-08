@@ -177,7 +177,7 @@ class TaskController extends Controller
     public function getFiles(Task $task)
     {
         $files = $task->files()
-            ->select('id', 'file_name', 'uploaded_by')
+            ->select('id', 'file_name', 'uploaded_by', 'created_at')
             ->with('uploader:id,name')
             ->get();
 

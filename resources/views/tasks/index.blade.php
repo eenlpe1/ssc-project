@@ -41,10 +41,6 @@
     <!-- Task Filters -->
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="flex border-b">
-            <a href="{{ route('tasks.index') }}" 
-               class="px-6 py-3 {{ $currentStatus === 'all' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
-                All
-            </a>
             <a href="{{ route('tasks.index', ['status' => 'todo']) }}" 
                class="px-6 py-3 {{ $currentStatus === 'todo' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 To do
@@ -74,7 +70,6 @@
                     <th class="px-6 py-4 text-left">Description</th>
                     <th class="px-6 py-4 text-left">Project</th>
                     <th class="px-6 py-4 text-left">Assigned To</th>
-                    <th class="px-6 py-4 text-center">Status</th>
                     <th class="px-6 py-4 text-center">Due Date</th>
                 </tr>
             </thead>
@@ -89,21 +84,11 @@
                         </td>
                         <td class="px-6 py-4">{{ $task->project->name }}</td>
                         <td class="px-6 py-4">{{ $task->assignedUser->name }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-3 py-1 rounded-full text-sm font-medium
-                                @if($task->status === 'todo') bg-gray-100 text-gray-800
-                                @elseif($task->status === 'in_progress') bg-yellow-100 text-yellow-800
-                                @elseif($task->status === 'completed') bg-green-100 text-green-800
-                                @else bg-red-100 text-red-800
-                                @endif">
-                                {{ ucfirst(str_replace('_', ' ', str_replace('todo', 'to do', $task->status))) }}
-                            </span>
-                        </td>
                         <td class="px-6 py-4 text-center">{{ $task->end_date->format('M d, Y') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">No tasks found</td>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No tasks found</td>
                     </tr>
                 @endforelse
             </tbody>

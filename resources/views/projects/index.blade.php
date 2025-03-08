@@ -41,13 +41,13 @@
     <!-- Project Filters -->
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="flex border-b">
-            <a href="{{ route('projects.index') }}" 
-               class="px-6 py-3 {{ $currentStatus === 'all' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
-                All
-            </a>
             <a href="{{ route('projects.index', ['status' => 'todo']) }}" 
                class="px-6 py-3 {{ $currentStatus === 'todo' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 To do
+            </a>
+            <a href="{{ route('projects.index', ['status' => 'in_progress']) }}" 
+               class="px-6 py-3 {{ $currentStatus === 'in_progress' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
+                In Progress
             </a>
             <a href="{{ route('projects.index', ['status' => 'overdue']) }}" 
                class="px-6 py-3 {{ $currentStatus === 'overdue' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
@@ -68,7 +68,9 @@
                     <th class="px-6 py-4 text-center">#</th>
                     <th class="px-6 py-4 text-left">Project</th>
                     <th class="px-6 py-4 text-left">Description</th>
+                    @if($currentStatus !== 'todo')
                     <th class="px-6 py-4 text-center">Status</th>
+                    @endif
                     <th class="px-6 py-4 text-center">Number of Task</th>
                 </tr>
             </thead>
@@ -81,6 +83,7 @@
                         <td class="px-6 py-4 text-gray-600">
                             {{ Str::limit($project->description, 100) }}
                         </td>
+                        @if($currentStatus !== 'todo')
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center">
                                 <span class="px-3 py-1 rounded-full text-sm font-medium
@@ -93,11 +96,12 @@
                                 </span>
                             </div>
                         </td>
+                        @endif
                         <td class="px-6 py-4 text-center text-blue-600 font-medium">{{ $project->task_count }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">No projects found</td>
+                        <td colspan="{{ $currentStatus === 'todo' ? '4' : '5' }}" class="px-6 py-4 text-center text-gray-500">No projects found</td>
                     </tr>
                 @endforelse
             </tbody>

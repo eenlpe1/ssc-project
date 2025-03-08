@@ -70,6 +70,7 @@
                     <th class="px-6 py-4 text-center">#</th>
                     <th class="px-6 py-4 text-left">Name</th>
                     <th class="px-6 py-4 text-left">Email</th>
+                    <th class="px-6 py-4 text-left">Position</th>
                     <th class="px-6 py-4 text-center">Role</th>
                     <th class="px-6 py-4 text-center">Created At</th>
                     <th class="px-6 py-4 text-center">Actions</th>
@@ -81,6 +82,7 @@
                         <td class="px-6 py-4 text-center">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-medium">{{ $user->name }}</td>
                         <td class="px-6 py-4">{{ $user->email }}</td>
+                        <td class="px-6 py-4">{{ $user->position ?? 'Not specified' }}</td>
                         <td class="px-6 py-4 text-center">
                             <span class="px-3 py-1 rounded-full text-sm font-medium
                                 @if($user->role === 'admin') bg-red-100 text-red-800
@@ -120,7 +122,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No users found</td>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">No users found</td>
                     </tr>
                 @endforelse
             </tbody>

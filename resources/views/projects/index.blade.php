@@ -193,11 +193,13 @@
                         Edit Project
                     </button>
                     @endif
+                    @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                     <button id="completeProjectBtn" 
                             onclick="completeProject(document.querySelector('#projectDetailsModal').dataset.projectId)"
                             class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
                         Mark as Complete
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -307,11 +309,11 @@
                 // Store project ID for complete button
                 document.querySelector('#projectDetailsModal').dataset.projectId = project.id;
                 
-                // Show/hide complete button based on status
+                // Show/hide complete button based on status if it exists
                 const completeBtn = document.getElementById('completeProjectBtn');
-                if (project.status === 'completed') {
+                if (completeBtn && project.status === 'completed') {
                     completeBtn.classList.add('hidden');
-                } else {
+                } else if (completeBtn) {
                     completeBtn.classList.remove('hidden');
                 }
                 

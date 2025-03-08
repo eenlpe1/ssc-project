@@ -301,7 +301,7 @@
                     @endif
                     <button id="completeTaskBtn" 
                             onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 hidden">
                         Mark as Complete
                     </button>
                 </div>
@@ -467,7 +467,14 @@
                         ratingSection.classList.add('hidden');
                     }
                 } else {
-                    completeBtn.classList.remove('hidden');
+                    // Show complete button only to admin, adviser, or the assigned user
+                    const canComplete = isAdmin() || isAdviser() || String(currentUserId) === String(task.assigned_to_id);
+                    if (canComplete) {
+                        completeBtn.classList.remove('hidden');
+                    } else {
+                        completeBtn.classList.add('hidden');
+                    }
+                    
                     // Show file upload form if user is admin, adviser, or assigned to the task
                     const canUpload = isAdmin() || isAdviser() || String(currentUserId) === String(task.assigned_to_id);
                     // console.log('Can Upload:', canUpload);

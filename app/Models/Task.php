@@ -17,7 +17,9 @@ class Task extends Model
         'status',
         'start_date',
         'end_date',
-        'rating'
+        'rating',
+        'comment',
+        'adviser_status'
     ];
 
     protected $casts = [

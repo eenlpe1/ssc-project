@@ -58,6 +58,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/tasks/{task}/rate', [TaskController::class, 'rateTask'])->name('tasks.rate');
 
+    Route::post('/tasks/{task}/adviser-feedback', [TaskController::class, 'updateAdviserFeedback'])
+        ->name('tasks.adviser-feedback');
+
     // Task file routes
     Route::get('/tasks/{task}/files', [TaskController::class, 'getFiles'])->name('tasks.files');
     Route::post('/tasks/{task}/upload', [TaskController::class, 'uploadFile'])->name('tasks.upload');

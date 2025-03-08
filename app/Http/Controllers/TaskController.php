@@ -169,6 +169,8 @@ class TaskController extends Controller
             'due_date' => $task->end_date->format('M d, Y'),
             'status' => $task->status,
             'rating' => $task->rating,
+            'comment' => $task->comment,
+            'adviser_status' => $task->adviser_status,
         ]);
     }
 
@@ -411,6 +413,49 @@ class TaskController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'error' => 'Error rating task.'], 500);
+        }
+    }
+
+    public function updateAdviserFeedback(Request $request, Task $task)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Check if user has permission (Admin or Adviser only)
+            if (!auth()->user()->isAdmin() && !auth()->user()->isAdviser()) {
+                throw new \Exception('You do not have permission to provide adviser feedback.');
+            }
+            
+            $validated = $request->validate([
+                'comment' => 'nullable|string',
+                'adviser_status' => 'required|in:pending,for_revision,approved',
+            ]);
+            
+            $task->update($validated);
+            
+            // Notify the assigned user
+            $user = User::find($task->assigned_to);
+            if ($user) {
+                $user->notify(new \App\Notifications\TaskFeedback(
+                    $task,
+                    $validated['comment'],
+                    $validated['adviser_status']
+                ));
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Feedback updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Error updating feedback: ' . $e->getMessage()
+            ], 500);
         }
     }
 } 

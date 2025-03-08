@@ -198,6 +198,50 @@
                     <h4 class="text-lg font-semibold text-gray-700">Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
+                
+                <!-- Adviser Feedback Section (visible to all, but only editable by Admin/Adviser) -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h4 class="text-lg font-semibold text-gray-700">Adviser Feedback</h4>
+                    
+                    <!-- Read-only view for all users -->
+                    <div class="space-y-4 mt-3" id="adviserFeedbackReadOnly">
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-1">Comment</h5>
+                            <div id="adviserCommentReadOnly" class="rounded-md border border-gray-300 bg-gray-50 p-3 min-h-[80px] whitespace-pre-wrap text-gray-600">
+                                No comment provided yet.
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-1">Status</h5>
+                            <div id="adviserStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                Pending
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
+                    <!-- Editable view for Admins and Advisers only -->
+                    <div class="space-y-4 mt-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                            <textarea id="adviserComment" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="adviserStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="pending">Pending</option>
+                                <option value="for_revision">For Revision</option>
+                                <option value="approved">Approved</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end">
+                            <button id="saveAdviserFeedbackBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                                Save Feedback
+                            </button>
+                        </div>
+                    </div>
+                    @endif
+                </div>
 
                 <!-- File Upload Section -->
                 <div id="fileUploadSection" class="border-t border-gray-200 pt-6">
@@ -391,6 +435,9 @@
                 const statusContainer = document.getElementById('taskStatus');
                 statusContainer.innerHTML = '';
                 statusContainer.appendChild(statusBadge);
+                
+                // Load adviser feedback
+                loadAdviserFeedback(task);
                 
                 // Store task ID for complete button
                 const modal = document.querySelector('#taskDetailsModal');
@@ -725,6 +772,90 @@
             closeEditModal();
         }
     });
+
+    // Adviser Feedback Functions
+    if (document.getElementById('saveAdviserFeedbackBtn')) {
+        document.getElementById('saveAdviserFeedbackBtn').addEventListener('click', function() {
+            const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+            const comment = document.getElementById('adviserComment').value;
+            const adviserStatus = document.getElementById('adviserStatus').value;
+            
+            saveAdviserFeedback(taskId, comment, adviserStatus);
+        });
+    }
+
+    function saveAdviserFeedback(taskId, comment, adviserStatus) {
+        fetch(`/tasks/${taskId}/adviser-feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ comment, adviser_status: adviserStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Feedback saved successfully', 'success');
+            } else {
+                showNotification('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving feedback:', error);
+            showNotification('An error occurred while saving feedback', 'error');
+        });
+    }
+
+    function loadAdviserFeedback(task) {
+        // Update the read-only view for all users
+        const commentEl = document.getElementById('adviserCommentReadOnly');
+        if (commentEl) {
+            commentEl.textContent = task.comment || 'No comment provided yet.';
+        }
+        
+        const statusBadgeEl = document.getElementById('adviserStatusBadge');
+        if (statusBadgeEl) {
+            let statusText = 'Pending';
+            let statusClass = 'bg-gray-100 text-gray-800';
+            
+            if (task.adviser_status === 'for_revision') {
+                statusText = 'For Revision';
+                statusClass = 'bg-yellow-100 text-yellow-800';
+            } else if (task.adviser_status === 'approved') {
+                statusText = 'Approved';
+                statusClass = 'bg-green-100 text-green-800';
+            }
+            
+            statusBadgeEl.textContent = statusText;
+            statusBadgeEl.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusClass}`;
+        }
+        
+        // Update the editable fields for admin/adviser
+        if (document.getElementById('adviserComment')) {
+            document.getElementById('adviserComment').value = task.comment || '';
+        }
+        
+        if (document.getElementById('adviserStatus')) {
+            document.getElementById('adviserStatus').value = task.adviser_status || 'pending';
+        }
+    }
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+            'bg-red-100 text-red-800 border border-red-200'
+        } z-50`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
 </script>
 @endpush
 @endsection 

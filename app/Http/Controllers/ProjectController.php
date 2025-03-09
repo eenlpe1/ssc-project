@@ -15,6 +15,9 @@ class ProjectController extends Controller
         try {
             $query = Project::query();
 
+            // Update statuses before filtering
+            Project::where('status', '!=', 'completed')->get()->each->updateStatusBasedOnDates();
+
             // Filter by status if provided
             if ($request->has('status')) {
                 $query->where('status', $request->status);

@@ -47,4 +47,41 @@ class Project extends Model
             default => 'gray',
         };
     }
+
+    public function updateStatusBasedOnDates()
+    {
+        $now = now();
+        
+        // Skip if already completed
+        if ($this->status === 'completed') {
+            return;
+        }
+
+        // Check for overdue
+        if ($this->end_date < $now->startOfDay()) {
+            $this->status = 'overdue';
+        }
+        // Check for in progress
+        elseif ($this->start_date <= $now && $this->end_date >= $now) {
+            $this->status = 'in_progress';
+        }
+        // Future projects
+        elseif ($this->start_date > $now) {
+            $this->status = 'todo';
+        }
+
+        if ($this->isDirty('status')) {
+            $this->save();
+        }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Update status when retrieving a project
+        static::retrieved(function ($project) {
+            $project->updateStatusBasedOnDates();
+        });
+    }
 } 

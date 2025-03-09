@@ -24,10 +24,12 @@ class TaskController extends Controller
             // Update statuses before filtering
             Task::where('status', '!=', 'completed')->get()->each->updateStatusBasedOnDates();
 
-            // Filter by status if provided
-            if ($request->has('status') && $request->status !== 'all') {
-                $query->where('status', $request->status);
+            // Filter by status, defaulting to 'todo' if not provided or if 'all' is provided
+            $status = $request->status;
+            if (!$request->has('status') || $request->status === 'all') {
+                $status = 'todo';
             }
+            $query->where('status', $status);
 
             $tasks = $query->orderBy('created_at', 'desc')->get();
             $projects = Project::orderBy('name')->get();
@@ -37,7 +39,7 @@ class TaskController extends Controller
                 'tasks' => $tasks,
                 'projects' => $projects,
                 'users' => $users,
-                'currentStatus' => $request->status ?? 'all'
+                'currentStatus' => $status
             ]);
         } catch (\Exception $e) {
             return back()->with('error', 'Error loading tasks: ' . $e->getMessage());

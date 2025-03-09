@@ -31,7 +31,7 @@
                                 <td class="px-6 py-4 text-center">{{ $project['completed_tasks'] }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center">
-                                        <span class="px-3 py-1 rounded-full text-sm font-medium
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap
                                             @if($project['status'] === 'todo') bg-gray-100 text-gray-800
                                             @elseif($project['status'] === 'in_progress') bg-yellow-100 text-yellow-800
                                             @elseif($project['status'] === 'completed') bg-green-100 text-green-800
@@ -134,7 +134,7 @@
         
         // Create status badge
         const statusBadge = document.createElement('span');
-        statusBadge.className = `inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full 
+        statusBadge.className = `inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full whitespace-nowrap 
             ${project.status === 'todo' ? 'bg-gray-100 text-gray-800' :
             project.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
             project.status === 'completed' ? 'bg-green-100 text-green-800' :

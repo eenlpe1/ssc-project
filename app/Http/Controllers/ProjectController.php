@@ -18,10 +18,12 @@ class ProjectController extends Controller
             // Update statuses before filtering
             Project::where('status', '!=', 'completed')->get()->each->updateStatusBasedOnDates();
 
-            // Filter by status if provided
-            if ($request->has('status')) {
-                $query->where('status', $request->status);
+            // Filter by status, defaulting to 'todo' if not provided or if 'all' is provided
+            $status = $request->status;
+            if (!$request->has('status') || $request->status === 'all') {
+                $status = 'todo';
             }
+            $query->where('status', $status);
 
             $projects = $query->withCount('tasks')
                 ->orderBy('id', 'asc')
@@ -29,7 +31,7 @@ class ProjectController extends Controller
 
             return view('projects.index', [
                 'projects' => $projects,
-                'currentStatus' => $request->status ?? 'all'
+                'currentStatus' => $status
             ]);
         } catch (\Exception $e) {
             return back()->with('error', 'Error loading projects: ' . $e->getMessage());

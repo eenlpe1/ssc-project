@@ -195,7 +195,7 @@
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Status</h4>
+                    <h4 class="text-lg font-semibold text-gray-700">Task Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
                 
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                         <div>
-                            <h5 class="text-sm font-medium text-gray-700 mb-1">Status</h5>
+                            <h5 class="text-sm font-medium text-gray-700 mb-1">Review Status</h5>
                             <div id="adviserStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                                 Pending
                             </div>
@@ -227,10 +227,10 @@
                             <textarea id="adviserComment" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Review Status</label>
                             <select id="adviserStatus" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="pending">Pending</option>
-                                <option value="for_revision">For Revision</option>
+                                <option value="pending">Pending Review</option>
+                                <option value="for_revision">Needs Revision</option>
                                 <option value="approved">Approved</option>
                             </select>
                         </div>
@@ -430,7 +430,16 @@
                     task.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                     task.status === 'completed' ? 'bg-green-100 text-green-800' :
                     'bg-red-100 text-red-800'}`;
-                statusBadge.textContent = task.status.replace('_', ' ').toUpperCase();
+                
+                // Format status text properly with better labels
+                let statusText = '';
+                if (task.status === 'todo') statusText = 'To Do';
+                else if (task.status === 'in_progress') statusText = 'In Progress';
+                else if (task.status === 'completed') statusText = 'Completed';
+                else if (task.status === 'overdue') statusText = 'Overdue';
+                else statusText = task.status.replace('_', ' ');
+                
+                statusBadge.textContent = statusText;
                 
                 const statusContainer = document.getElementById('taskStatus');
                 statusContainer.innerHTML = '';
@@ -840,11 +849,11 @@
         
         const statusBadgeEl = document.getElementById('adviserStatusBadge');
         if (statusBadgeEl) {
-            let statusText = 'Pending';
+            let statusText = 'Pending Review';
             let statusClass = 'bg-gray-100 text-gray-800';
             
             if (task.adviser_status === 'for_revision') {
-                statusText = 'For Revision';
+                statusText = 'Needs Revision';
                 statusClass = 'bg-yellow-100 text-yellow-800';
             } else if (task.adviser_status === 'approved') {
                 statusText = 'Approved';

@@ -523,9 +523,12 @@
                     });
                     
                     fileItem.innerHTML = `
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-600">${file.file_name}</span>
-                            <span class="text-xs text-gray-500">Uploaded on ${formattedDate}</span>
+                        <div class="flex items-center">
+                            <span class="text-sm font-medium text-gray-700 mr-3">File Submission:</span>
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-600">${file.file_name}</span>
+                                <span class="text-xs text-gray-500">Uploaded on ${formattedDate}</span>
+                            </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button onclick="downloadFile(${file.id})" 

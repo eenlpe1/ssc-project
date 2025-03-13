@@ -497,13 +497,13 @@
                 }
 
                 // Load task files
-                loadTaskFiles(task.id);
+                loadTaskFiles(task.id, task);
                 
                 modal.classList.remove('hidden');
             });
     }
 
-    function loadTaskFiles(taskId) {
+    function loadTaskFiles(taskId, task) {
         fetch(`/tasks/${taskId}/files`)
             .then(response => response.json())
             .then(files => {
@@ -547,7 +547,7 @@
                                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
                             </button>
-                            ${isAdmin() ? `
+                            ${(isAdmin() || isTaskAssignedUser(task.assigned_to_id)) ? `
                                 <button onclick="deleteFile(${file.id})" 
                                         class="text-red-600 hover:text-red-700 transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,6 +572,11 @@
         return userRole === 'adviser';
     }
 
+    function isTaskAssignedUser(assignedUserId) {
+        const currentUserId = document.body.dataset.userId;
+        return String(currentUserId) === String(assignedUserId);
+    }
+
     function canRateTasks() {
         const userRole = document.body.dataset.userRole;
         return userRole === 'admin' || userRole === 'adviser';
@@ -594,8 +599,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    loadTaskFiles(taskId);
-                    this.reset();
+                    const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
+                    // Get the current task to pass to loadTaskFiles
+                    fetch(`/tasks/${taskId}`)
+                        .then(response => response.json())
+                        .then(task => {
+                            loadTaskFiles(taskId, task);
+                            this.reset();
+                        });
                 } else {
                     alert('Error uploading file: ' + (data.message || 'Unknown error occurred'));
                 }
@@ -654,7 +665,12 @@
         .then(data => {
             if (data.success) {
                 const taskId = document.querySelector('#taskDetailsModal').dataset.taskId;
-                loadTaskFiles(taskId);
+                // Get the current task to pass to loadTaskFiles
+                fetch(`/tasks/${taskId}`)
+                    .then(response => response.json())
+                    .then(task => {
+                        loadTaskFiles(taskId, task);
+                    });
             } else {
                 alert('Error deleting file: ' + data.message);
             }

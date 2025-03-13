@@ -317,9 +317,9 @@ class TaskController extends Controller
 
             $file = TaskFile::findOrFail($fileId);
 
-            // Only admin can delete files
-            if (!auth()->user()->isAdmin()) {
-                throw new \Exception('Only administrators can delete files.');
+            // Allow both admin and assigned user to delete files
+            if (!auth()->user()->isAdmin() && auth()->id() !== $file->task->assigned_to) {
+                throw new \Exception('Only administrators and assigned task users can delete files.');
             }
 
             // Delete the physical file

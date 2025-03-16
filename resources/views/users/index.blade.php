@@ -154,11 +154,22 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Role</label>
-                        <select name="role" id="editUserRole" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <select name="role" id="editUserRole" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 {{ Auth::user()->role !== 'admin' ? 'appearance-none' : '' }}" {{ Auth::user()->role === 'admin' ? '' : 'disabled' }} required>
                             <option value="admin">Admin</option>
                             <option value="adviser">Adviser</option>
                             <option value="user">User</option>
                         </select>
+                        @if(Auth::user()->role !== 'admin')
+                            <input type="hidden" name="role" id="editUserRoleHidden">
+                            <style>
+                                /* Hide the dropdown arrow for non-admin users */
+                                #editUserRole:disabled {
+                                    background-image: none !important;
+                                    cursor: not-allowed;
+                                    opacity: 0.7;
+                                }
+                            </style>
+                        @endif
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
@@ -379,6 +390,13 @@
                 document.getElementById('editUserName').value = user.name;
                 document.getElementById('editUserEmail').value = user.email;
                 document.getElementById('editUserRole').value = user.role;
+                
+                // Set the hidden role input if present (for non-admin users)
+                const hiddenRoleInput = document.getElementById('editUserRoleHidden');
+                if (hiddenRoleInput) {
+                    hiddenRoleInput.value = user.role;
+                }
+                
                 document.getElementById('editUserForm').action = `/users/${userId}`;
                 
                 document.getElementById('editUserModal').classList.remove('hidden');

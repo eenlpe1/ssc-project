@@ -81,13 +81,27 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
-            $validated = $request->validate([
+            // Common validation rules
+            $validationRules = [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-                'role' => 'required|string|in:admin,adviser,user',
                 'password' => 'nullable|string|min:8|confirmed',
-            ]);
+            ];
+            
+            // Only include role validation if the user is an admin
+            if (auth()->user()->isAdmin()) {
+                $validationRules['role'] = 'required|string|in:admin,adviser,user';
+            }
 
+            $validated = $request->validate($validationRules);
+
+            // If user is not an admin, keep the existing role
+            if (!auth()->user()->isAdmin()) {
+                // Make sure the role doesn't change
+                $validated['role'] = $user->role;
+            }
+            
+            // Handle password separately
             if (isset($validated['password'])) {
                 $validated['password'] = Hash::make($validated['password']);
             } else {

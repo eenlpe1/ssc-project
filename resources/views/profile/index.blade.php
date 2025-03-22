@@ -84,7 +84,7 @@
             
             <div class="grid grid-cols-2 gap-8">
                 <!-- Left Column -->
-                <div class="space-y-6">
+                <div class="space-y-6 flex flex-col">
                     <div>
                         <label class="block text-lg font-semibold text-gray-700 mb-2">Profile Picture</label>
                         <input type="file" name="profile_picture" accept="image/*"
@@ -106,6 +106,17 @@
                         <input type="email" name="email" value="{{ old('email', $user->email) }}"
                                class="w-full rounded-lg border-gray-300 bg-gray-50 p-3 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                                required>
+                    </div>
+
+                    <div class="flex-grow mt-auto pt-6">
+                        <button type="button" 
+                                onclick="showResetPasswordModal()"
+                                class="border border-yellow-300 bg-yellow-50 hover:bg-yellow-100 px-4 py-2 rounded-lg text-yellow-600 hover:text-yellow-700 font-medium flex items-center transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                            Change Password
+                        </button>
                     </div>
                 </div>
 
@@ -150,4 +161,68 @@
         </form>
     </div>
 </div>
+
+<!-- Reset Password Modal -->
+<div id="resetPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Change Your Password</h3>
+            <button class="text-gray-500 hover:text-gray-700" onclick="closeResetPasswordModal()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <form id="resetPasswordForm" action="{{ route('profile.reset-password') }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Current Password</label>
+                    <input type="password" name="current_password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">New Password</label>
+                    <input type="password" name="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                    <input type="password" name="password_confirmation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeResetPasswordModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">Reset Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    function showResetPasswordModal() {
+        document.getElementById('resetPasswordModal').classList.remove('hidden');
+        document.getElementById('resetPasswordModal').classList.add('flex');
+    }
+
+    function closeResetPasswordModal() {
+        document.getElementById('resetPasswordModal').classList.add('hidden');
+        document.getElementById('resetPasswordModal').classList.remove('flex');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('resetPasswordModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('resetPasswordModal')) {
+            closeResetPasswordModal();
+        }
+    });
+
+    // Close modal when pressing escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeResetPasswordModal();
+        }
+    });
+</script>
+@endpush
 @endsection 

@@ -4,6 +4,16 @@
 <div class="p-6">
     <h2 class="text-2xl font-bold mb-6">Reports</h2>
 
+    <!-- Print Button -->
+    <div class="flex justify-end mb-4">
+        <button onclick="printReport()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            </svg>
+            Print Report
+        </button>
+    </div>
+
     <!-- Project Progress Section -->
     <div class="bg-white rounded-lg shadow-lg">
         <div class="p-6">
@@ -172,6 +182,41 @@
             closeProjectProgress();
         }
     });
+
+    // Handle printing of the reports page
+    function printReport() {
+        // Hide elements that shouldn't be printed
+        const originalBodyStyle = document.body.style.cssText;
+        
+        // Create a style element for print-specific styles
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = `
+            @page {
+                size: landscape;
+            }
+            @media print {
+                body { padding: 0; margin: 0; }
+                .p-6 { padding: 20px; }
+                #projectProgressModal, button, .no-print { display: none !important; }
+                nav, header, footer, aside, .sidebar { display: none !important; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2 !important; color: black !important; }
+                h2, h3 { margin-bottom: 15px; }
+                a { text-decoration: none; color: black; }
+                * { color-adjust: exact; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Print the document
+        window.print();
+        
+        // Remove the print styles
+        document.head.removeChild(style);
+        document.body.style.cssText = originalBodyStyle;
+    }
 </script>
 @endpush
 @endsection 

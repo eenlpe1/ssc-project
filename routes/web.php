@@ -20,6 +20,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/forgot-password', [LoginController::class, 'showForgotPassword'])->name('password.forgot');
+    Route::post('/forgot-password/admin', [LoginController::class, 'adminPasswordResetRequest'])->name('password.admin.request');
+    Route::post('/forgot-password/admin/verify', [LoginController::class, 'verifyAdminReset'])->name('password.admin.verify');
 });
 
 Route::middleware(['auth'])->group(function () {

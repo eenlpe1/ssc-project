@@ -3,7 +3,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "email-server": "node resources/js/emailServer.js",
+        "start": "concurrently \"php artisan serve\" \"npm run dev\" \"npm run email-server\" \"php artisan queue:work\""
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",
@@ -13,5 +15,11 @@
         "postcss": "^8.4.47",
         "tailwindcss": "^3.4.13",
         "vite": "^6.0"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "nodemailer": "^6.9.14"
     }
 }

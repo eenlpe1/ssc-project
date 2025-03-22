@@ -41,12 +41,33 @@ To run this application, follow these steps:
    ```bash
    npm run dev
    ```
-9. Start the queue worker for notifications:
+9. Start the email server and queue worker:
    ```bash
+   npm run email-server
    php artisan queue:work
    ```
 
+Alternatively, you can use the combined start command:
+```bash
+npm run start
+```
+
 **Note**: The queue worker (`php artisan queue:work`) must be running for the notification system to function properly. This processes background jobs like sending notifications to users.
+
+## Email Configuration
+
+For password reset and email functionality to work, you need to add the following variables to your `.env` file:
+
+```bash
+EMAIL=yourgmailforsendingemail
+EMAIL_KEY=yourgooglesmtppassword
+EMAIL_SERVER_PORT=3333
+```
+
+To use Gmail for sending emails, you'll need to:
+1. Use a Gmail account
+2. Enable "Less secure app access" or create an App Password in your Google account settings
+3. Use the App Password as your EMAIL_KEY
 
 ## Default Admin Credentials
 

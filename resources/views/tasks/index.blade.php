@@ -71,7 +71,7 @@
                     <th class="px-6 py-4 text-left">Project</th>
                     <th class="px-6 py-4 text-left">Assigned To</th>
                     <th class="px-6 py-4 text-center">Due Date</th>
-                    @if(Auth::user()->isAdmin())
+                    @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                     <th class="px-6 py-4 text-center">Action</th>
                     @endif
                 </tr>
@@ -88,7 +88,7 @@
                         <td class="px-6 py-4">{{ $task->project->name }}</td>
                         <td class="px-6 py-4">{{ $task->assignedUser->name }}</td>
                         <td class="px-6 py-4 text-center">{{ $task->end_date->format('M d, Y') }}</td>
-                        @if(Auth::user()->isAdmin())
+                        @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                         <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
                             <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
                                 @csrf
@@ -923,4 +923,4 @@
     }
 </script>
 @endpush
-@endsection 
+@endsection

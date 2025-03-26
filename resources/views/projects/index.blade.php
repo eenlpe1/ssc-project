@@ -72,7 +72,7 @@
                     <th class="px-6 py-4 text-center">Status</th>
                     @endif
                     <th class="px-6 py-4 text-center">Number of Task</th>
-                    @if(Auth::user()->isAdmin())
+                    @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                     <th class="px-6 py-4 text-center">Action</th>
                     @endif
                 </tr>
@@ -101,7 +101,7 @@
                         </td>
                         @endif
                         <td class="px-6 py-4 text-center text-blue-600 font-medium">{{ $project->task_count }}</td>
-                        @if(Auth::user()->isAdmin())
+                        @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                         <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
                             <form action="{{ route('projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
                                 @csrf
@@ -459,4 +459,4 @@
     });
 </script>
 @endpush
-@endsection 
+@endsection

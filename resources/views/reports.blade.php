@@ -5,6 +5,7 @@
     <h2 class="text-2xl font-bold mb-6">Reports</h2>
 
     <!-- Print Button -->
+    @if(Auth::user()->role !== 'user')
     <div class="flex justify-end mb-4">
         <button onclick="printReport()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,6 +14,7 @@
             Print Report
         </button>
     </div>
+    @endif
 
     <!-- Project Progress Section -->
     <div class="bg-white rounded-lg shadow-lg">
@@ -219,4 +221,4 @@
     }
 </script>
 @endpush
-@endsection 
+@endsection

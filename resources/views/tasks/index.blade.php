@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <!-- Flash Messages -->
     @if(session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -26,10 +26,10 @@
     @endif
 
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">TASK</h2>
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 class="text-xl sm:text-2xl font-bold">TASK</h2>
         @if(Auth::user()->canCreateTasks())
-            <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+            <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 w-full sm:w-auto justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -39,84 +39,86 @@
     </div>
 
     <!-- Task Filters -->
-    <div class="bg-white rounded-lg shadow mb-6">
-        <div class="flex border-b">
+    <div class="bg-white rounded-lg shadow mb-6 overflow-x-auto">
+        <div class="flex flex-nowrap border-b min-w-full">
             <a href="{{ route('tasks.index', ['status' => 'todo']) }}" 
-               class="px-6 py-3 {{ $currentStatus === 'todo' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
+               class="px-3 sm:px-6 py-3 whitespace-nowrap text-sm sm:text-base {{ $currentStatus === 'todo' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 To do
             </a>
             <a href="{{ route('tasks.index', ['status' => 'in_progress']) }}" 
-               class="px-6 py-3 {{ $currentStatus === 'in_progress' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
+               class="px-3 sm:px-6 py-3 whitespace-nowrap text-sm sm:text-base {{ $currentStatus === 'in_progress' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 In Progress
             </a>
             <a href="{{ route('tasks.index', ['status' => 'overdue']) }}" 
-               class="px-6 py-3 {{ $currentStatus === 'overdue' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
+               class="px-3 sm:px-6 py-3 whitespace-nowrap text-sm sm:text-base {{ $currentStatus === 'overdue' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 Overdue
             </a>
             <a href="{{ route('tasks.index', ['status' => 'completed']) }}" 
-               class="px-6 py-3 {{ $currentStatus === 'completed' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
+               class="px-3 sm:px-6 py-3 whitespace-nowrap text-sm sm:text-base {{ $currentStatus === 'completed' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-blue-600 hover:border-b-2 hover:border-blue-600' }}">
                 Completed
             </a>
         </div>
     </div>
 
-    <!-- Tasks Table -->
+    <!-- Tasks Table - Responsive Design -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full whitespace-nowrap">
-            <thead>
-                <tr class="bg-[#1e3a8a] text-white">
-                    <th class="px-6 py-4 text-center">#</th>
-                    <th class="px-6 py-4 text-left">Task</th>
-                    <th class="px-6 py-4 text-left">Description</th>
-                    <th class="px-6 py-4 text-left">Project</th>
-                    <th class="px-6 py-4 text-left">Assigned To</th>
-                    <th class="px-6 py-4 text-center">Due Date</th>
-                    @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
-                    <th class="px-6 py-4 text-center">Action</th>
-                    @endif
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @php $taskNumber = 1; @endphp
-                @forelse($tasks as $task)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer" onclick="showTaskDetails({{ $task->id }})">
-                        <td class="px-6 py-4 text-center">{{ $taskNumber++ }}</td>
-                        <td class="px-6 py-4 text-blue-600 font-medium">{{ $task->name }}</td>
-                        <td class="px-6 py-4 text-gray-600">
-                            {{ Str::limit($task->description, 50) }}
-                        </td>
-                        <td class="px-6 py-4">{{ $task->project->name }}</td>
-                        <td class="px-6 py-4">{{ $task->assignedUser->name }}</td>
-                        <td class="px-6 py-4 text-center">{{ $task->end_date->format('M d, Y') }}</td>
+        <div class="overflow-x-auto">
+            <table class="w-full whitespace-nowrap">
+                <thead>
+                    <tr class="bg-[#1e3a8a] text-white">
+                        <th class="px-4 sm:px-6 py-3 sm:py-4 text-center">#</th>
+                        <th class="px-4 sm:px-6 py-3 sm:py-4 text-left">Task</th>
+                        <th class="hidden md:table-cell px-4 sm:px-6 py-3 sm:py-4 text-left">Description</th>
+                        <th class="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4 text-left">Project</th>
+                        <th class="px-4 sm:px-6 py-3 sm:py-4 text-left">Assigned To</th>
+                        <th class="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4 text-center">Due Date</th>
                         @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
-                        <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
-                            <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors duration-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                </button>
-                            </form>
-                        </td>
+                        <th class="px-4 sm:px-6 py-3 sm:py-4 text-center">Action</th>
                         @endif
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="{{ 6 + (Auth::user()->isAdmin() ? 1 : 0) }}" class="px-6 py-4 text-center text-gray-500">No tasks found</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @php $taskNumber = 1; @endphp
+                    @forelse($tasks as $task)
+                        <tr class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer" onclick="showTaskDetails({{ $task->id }})">
+                            <td class="px-4 sm:px-6 py-3 sm:py-4 text-center text-blue-600 font-medium">{{ $taskNumber++ }}</td>
+                            <td class="px-4 sm:px-6 py-3 sm:py-4 text-blue-600 font-medium">{{ $task->name }}</td>
+                            <td class="hidden md:table-cell px-4 sm:px-6 py-3 sm:py-4 text-gray-600">
+                                {{ Str::limit($task->description, 50) }}
+                            </td>
+                            <td class="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4">{{ $task->project->name }}</td>
+                            <td class="px-4 sm:px-6 py-3 sm:py-4">{{ $task->assignedUser->name }}</td>
+                            <td class="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4 text-center">{{ $task->end_date->format('M d, Y') }}</td>
+                            @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
+                            <td class="px-4 sm:px-6 py-3 sm:py-4 text-center" onclick="event.stopPropagation()">
+                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-800 transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                            @endif
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ 6 + (Auth::user()->isAdmin() || Auth::user()->isAdviser() ? 1 : 0) }}" class="px-4 sm:px-6 py-4 text-center text-gray-500">No tasks found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <!-- Add Task Modal -->
-<div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg w-full max-w-md p-6">
+<div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Add New Task</h3>
+            <h3 class="text-lg sm:text-xl font-bold">Add New Task</h3>
             <button class="text-gray-500 hover:text-gray-700" onclick="closeModal()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -156,7 +158,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Start Date</label>
                         <input type="date" name="start_date" value="{{ old('start_date') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
@@ -167,19 +169,19 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create Task</button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 w-full sm:w-auto" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full sm:w-auto">Create Task</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Task Details Modal -->
-<div id="taskDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" data-task-id="">
-    <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+<div id="taskDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-4 sm:p-5 border w-full max-w-[600px] shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Task Details</h3>
+            <h3 class="text-lg sm:text-xl font-bold">Task Details</h3>
             <button onclick="closeTaskDetails()" class="text-gray-600 hover:text-gray-800">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -187,43 +189,43 @@
             </button>
         </div>
         <div class="mt-4">
-            <div class="space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Task Name</h4>
-                    <p id="taskName" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Task Name</h4>
+                    <p id="taskName" class="mt-1 text-gray-600 bg-gray-50 p-2 sm:p-3 rounded-md"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Description</h4>
-                    <p id="taskDescription" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md min-h-[100px] whitespace-pre-wrap"></p>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Description</h4>
+                    <p id="taskDescription" class="mt-1 text-gray-600 bg-gray-50 p-2 sm:p-3 rounded-md min-h-[80px] sm:min-h-[100px] whitespace-pre-wrap"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Project</h4>
-                    <p id="taskProject" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Project</h4>
+                    <p id="taskProject" class="mt-1 text-gray-600 bg-gray-50 p-2 sm:p-3 rounded-md"></p>
                 </div>
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                        <h4 class="text-lg font-semibold text-gray-700">Assigned To</h4>
-                        <p id="taskAssignedTo" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
+                        <h4 class="text-base sm:text-lg font-semibold text-gray-700">Assigned To</h4>
+                        <p id="taskAssignedTo" class="mt-1 text-gray-600 bg-gray-50 p-2 sm:p-3 rounded-md"></p>
                     </div>
                     <div>
-                        <h4 class="text-lg font-semibold text-gray-700">Due Date</h4>
-                        <p id="taskDueDate" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
+                        <h4 class="text-base sm:text-lg font-semibold text-gray-700">Due Date</h4>
+                        <p id="taskDueDate" class="mt-1 text-gray-600 bg-gray-50 p-2 sm:p-3 rounded-md"></p>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Task Status</h4>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Task Status</h4>
                     <p id="taskStatus" class="mt-1"></p>
                 </div>
                 
                 <!-- Adviser Feedback Section (visible to all, but only editable by Admin/Adviser) -->
-                <div class="border-t border-gray-200 pt-6">
-                    <h4 class="text-lg font-semibold text-gray-700">Adviser Feedback</h4>
+                <div class="border-t border-gray-200 pt-4 sm:pt-6">
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Adviser Feedback</h4>
                     
                     <!-- Read-only view for all users -->
                     <div class="space-y-4 mt-3" id="adviserFeedbackReadOnly">
                         <div>
                             <h5 class="text-sm font-medium text-gray-700 mb-1">Comment</h5>
-                            <div id="adviserCommentReadOnly" class="rounded-md border border-gray-300 bg-gray-50 p-3 min-h-[80px] whitespace-pre-wrap text-gray-600">
+                            <div id="adviserCommentReadOnly" class="rounded-md border border-gray-300 bg-gray-50 p-2 sm:p-3 min-h-[60px] sm:min-h-[80px] whitespace-pre-wrap text-gray-600">
                                 No comment provided yet.
                             </div>
                         </div>
@@ -237,7 +239,7 @@
                     
                     @if(Auth::user()->isAdmin() || Auth::user()->isAdviser())
                     <!-- Editable view for Admins and Advisers only -->
-                    <div class="space-y-4 mt-5">
+                    <div class="space-y-4 mt-3 sm:mt-5">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
                             <textarea id="adviserComment" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
@@ -260,24 +262,24 @@
                 </div>
 
                 <!-- File Upload Section -->
-                <div id="fileUploadSection" class="border-t border-gray-200 pt-6">
-                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Task Files</h4>
+                <div id="fileUploadSection" class="border-t border-gray-200 pt-4 sm:pt-6">
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700 mb-4">Task Files</h4>
                     
                     <!-- File Upload Form -->
                     <form id="fileUploadForm" class="mb-4 hidden">
                         @csrf
-                        <div class="flex items-center gap-4">
-                            <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                            <div class="flex-1 w-full">
                                 <input type="file" name="task_file" 
                                        class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm
-                                              file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
+                                              file:mr-2 sm:file:mr-4 file:py-1 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-full file:border-0
                                               file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
                                               hover:file:bg-blue-100"
                                        accept=".pdf,.doc,.docx,.zip,.rar"
                                        required>
                             </div>
                             <button type="submit" 
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2">
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 w-full sm:w-auto justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
@@ -293,8 +295,8 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="border-t border-gray-200 pt-6 flex justify-end space-x-4">
-                    <div id="ratingSection" class="hidden">
+                <div class="border-t border-gray-200 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 space-x-0 sm:space-x-4">
+                    <div id="ratingSection" class="hidden sm:mr-auto">
                         <div class="star-rating flex items-center space-x-1">
                             <input type="radio" id="star5" name="rating" value="5" class="hidden" />
                             <label for="star5" class="text-2xl cursor-pointer text-yellow-400 hover:text-yellow-500">★</label>
@@ -311,13 +313,13 @@
                     @if(Auth::user()->canCreateTasks())
                     <button id="editTaskBtn" 
                             onclick="openEditTaskModal()"
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 w-full sm:w-auto">
                         Edit Task
                     </button>
                     @endif
                     <button id="completeTaskBtn" 
                             onclick="completeTask(document.querySelector('#taskDetailsModal').dataset.taskId)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 hidden">
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 w-full sm:w-auto hidden">
                         Mark as Complete
                     </button>
                 </div>
@@ -327,10 +329,10 @@
 </div>
 
 <!-- Edit Task Modal -->
-<div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg w-full max-w-md p-6">
+<div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Edit Task</h3>
+            <h3 class="text-lg sm:text-xl font-bold">Edit Task</h3>
             <button class="text-gray-500 hover:text-gray-700" onclick="closeEditModal()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -367,7 +369,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Start Date</label>
                         <input type="date" name="start_date" id="editTaskStartDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
@@ -387,9 +389,9 @@
                     </select>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeEditModal()">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Update Task</button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 w-full sm:w-auto" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full sm:w-auto">Update Task</button>
             </div>
         </form>
     </div>
@@ -424,7 +426,7 @@
         });
     }
 
-    // Show modal if there are validation errors
+    // Show modal when there are validation errors
     @if($errors->any())
         openModal();
     @endif

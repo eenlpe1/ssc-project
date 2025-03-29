@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
+<div class="p-4 sm:p-6">
     <!-- Flash Messages -->
     @if(session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-sm" role="alert">
@@ -15,10 +15,10 @@
         </div>
     @endif
 
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">DISCUSSION BOARD</h2>
-        <button id="addDiscussionBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-sm">
+    <!-- Header - Made mobile responsive -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 class="text-xl sm:text-2xl font-bold">DISCUSSION BOARD</h2>
+        <button id="addDiscussionBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-sm w-full sm:w-auto justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Discussions Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         @forelse($discussions as $discussion)
             <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 @if($discussion->image)
@@ -95,10 +95,10 @@
 </div>
 
 <!-- Create Discussion Modal -->
-<div id="createDiscussionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg w-full max-w-md p-6 shadow-xl">
+<div id="createDiscussionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-gray-800">Create New Agenda</h3>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-800">Create New Agenda</h3>
             <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -143,13 +143,13 @@
                     <p class="mt-1 text-sm text-gray-500">Accepted formats: JPG, PNG, GIF</p>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end space-x-3">
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3">
                 <button type="button" onclick="closeModal()"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full sm:w-auto">
                     Cancel
                 </button>
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 w-full sm:w-auto">
                     Create Agenda
                 </button>
             </div>
@@ -194,4 +194,4 @@
     @endif
 </script>
 @endpush
-@endsection 
+@endsection

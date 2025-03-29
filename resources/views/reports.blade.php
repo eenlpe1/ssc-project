@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
-    <h2 class="text-2xl font-bold mb-6">Reports</h2>
+<div class="p-4 sm:p-6">
+    <h2 class="text-2xl font-bold mb-4 sm:mb-6">Reports</h2>
 
     <!-- Print Button -->
     @if(Auth::user()->role !== 'user')
@@ -18,32 +18,32 @@
 
     <!-- Project Progress Section -->
     <div class="bg-white rounded-lg shadow-lg">
-        <div class="p-6">
-            <h3 class="text-xl font-bold mb-6">Project Progress</h3>
+        <div class="p-4 sm:p-6">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Project Progress</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-[#1e3a8a] text-white">
-                            <th class="px-6 py-4 text-center w-16">#</th>
-                            <th class="px-6 py-4 text-left">Project</th>
-                            <th class="px-6 py-4 text-center w-32">Completed Task</th>
-                            <th class="px-6 py-4 text-center w-32">Status</th>
-                            <th class="px-6 py-4 text-center w-32">Start Date</th>
-                            <th class="px-6 py-4 text-center w-32">End Date</th>
-                            <th class="px-6 py-4 text-left">Assigned Member</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-center w-12 sm:w-16">#</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Project</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-center w-24 sm:w-32">Completed Task</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-center">Status</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">Start Date</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">End Date</th>
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-left hidden md:table-cell">Assigned Member</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @forelse($projects as $index => $project)
                             <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="showProjectProgress({{ json_encode($project) }})">
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                     <span class="text-blue-600 font-medium">{{ $index + 1 }}</span>
                                 </td>
-                                <td class="px-6 py-4 font-medium">{{ $project['name'] }}</td>
-                                <td class="px-6 py-4 text-center">{{ $project['completed_tasks'] }}</td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-sm sm:text-base">{{ $project['name'] }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base">{{ $project['completed_tasks'] }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                     <div class="flex justify-center">
-                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap
+                                        <span class="inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap
                                             @if($project['status'] === 'todo') bg-gray-100 text-gray-800
                                             @elseif($project['status'] === 'in_progress') bg-yellow-100 text-yellow-800
                                             @elseif($project['status'] === 'completed') bg-green-100 text-green-800
@@ -53,13 +53,13 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">{{ $project['start_date'] }}</td>
-                                <td class="px-6 py-4 text-center">{{ $project['end_date'] }}</td>
-                                <td class="px-6 py-4">{{ $project['assigned_members'] ?: 'No members assigned' }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base hidden sm:table-cell">{{ $project['start_date'] }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm sm:text-base hidden sm:table-cell">{{ $project['end_date'] }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base hidden md:table-cell">{{ $project['assigned_members'] ?: 'No members assigned' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">No projects found</td>
+                                <td colspan="7" class="px-3 sm:px-6 py-4 text-center text-gray-500">No projects found</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -70,10 +70,10 @@
 </div>
 
 <!-- Project Progress Modal -->
-<div id="projectProgressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-    <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+<div id="projectProgressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden p-4">
+    <div class="relative top-20 mx-auto p-4 sm:p-5 border w-full sm:max-w-[600px] shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold">Project Progress Details</h3>
+            <h3 class="text-lg sm:text-xl font-bold">Project Progress Details</h3>
             <button onclick="closeProjectProgress()" class="text-gray-600 hover:text-gray-800">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -81,31 +81,31 @@
             </button>
         </div>
         <div class="mt-4">
-            <div class="space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Project Name</h4>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Project Name</h4>
                     <p id="projectName" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                 </div>
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                        <h4 class="text-lg font-semibold text-gray-700">Start Date</h4>
+                        <h4 class="text-base sm:text-lg font-semibold text-gray-700">Start Date</h4>
                         <p id="projectStartDate" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                     </div>
                     <div>
-                        <h4 class="text-lg font-semibold text-gray-700">End Date</h4>
+                        <h4 class="text-base sm:text-lg font-semibold text-gray-700">End Date</h4>
                         <p id="projectEndDate" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Status</h4>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Status</h4>
                     <p id="projectStatus" class="mt-1"></p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Task Progress</h4>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Task Progress</h4>
                     <div id="projectProgress" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></div>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold text-gray-700">Assigned Members</h4>
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-700">Assigned Members</h4>
                     <p id="projectMembers" class="mt-1 text-gray-600 bg-gray-50 p-3 rounded-md"></p>
                 </div>
             </div>

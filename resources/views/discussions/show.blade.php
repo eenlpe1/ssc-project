@@ -69,7 +69,7 @@
                     <div class="flex-1 {{ $message->user_id === auth()->id() ? 'text-right' : '' }}">
                         <div class="flex items-center gap-2 mb-1 {{ $message->user_id === auth()->id() ? 'justify-end' : '' }}">
                             <span class="font-semibold text-gray-900">{{ $message->user->name }}</span>
-                            <span class="text-xs text-gray-500">{{ $message->created_at->format('g:i A') }}</span>
+                            <span class="text-xs text-gray-500 message-timestamp" data-timestamp="{{ $message->created_at->timestamp }}">{{ $message->created_at->format('g:i A') }}</span>
                         </div>
                         <div class="inline-block rounded-lg px-4 py-2 shadow-sm max-w-[80%] 
                             {{ $message->user_id === auth()->id() 
@@ -119,10 +119,52 @@
     document.addEventListener('DOMContentLoaded', function() {
         const messages = document.getElementById('messages');
         messages.scrollTop = messages.scrollHeight;
+        
+        // Convert all timestamps to user's local time
+        convertTimestamps();
     });
+
+    function convertTimestamps() {
+        document.querySelectorAll('.message-timestamp').forEach(function(element) {
+            const timestamp = parseInt(element.getAttribute('data-timestamp')) * 1000;
+            const date = new Date(timestamp);
+            element.textContent = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        });
+    }
+
+    // Add event listener to process form and handle new messages
+    document.querySelector('form').addEventListener('submit', function(e) {
+        // Let the form submit normally but store current timestamp for visual feedback
+        const currentTime = new Date();
+        
+        // Save timestamp to session storage to restore after page reload
+        sessionStorage.setItem('lastMessageTime', currentTime.getTime());
+    });
+
+    // Check if we have a stored timestamp on page load (for newly sent messages)
+    if (sessionStorage.getItem('lastMessageTime')) {
+        // Wait for DOM to be fully loaded before manipulating it
+        window.addEventListener('load', function() {
+            // Find the newest message (last one) and update its timestamp
+            const messages = document.querySelectorAll('.message-timestamp');
+            if (messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                const timestamp = parseInt(lastMessage.getAttribute('data-timestamp')) * 1000;
+                const serverTime = new Date(timestamp);
+                const localTime = new Date(parseInt(sessionStorage.getItem('lastMessageTime')));
+                
+                // Only update if the times are within 10 seconds (to ensure we're modifying the right message)
+                if (Math.abs(serverTime - localTime) < 10000) {
+                    lastMessage.textContent = localTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                }
+            }
+            // Clear the stored timestamp
+            sessionStorage.removeItem('lastMessageTime');
+        });
+    }
 
     function closeDiscussion() {
         window.location.href = "{{ route('discussions.index') }}";
     }
 </script>
-@endsection 
+@endsection
